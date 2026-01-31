@@ -84,7 +84,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
                 android:text="225 saat"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="?android:textColorPrimary"/>
             <Switch
                 android:id="@+id/method_switch"
                 android:layout_width="wrap_content"
@@ -143,9 +144,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:visibility="gone"
-            app:cardElevation="12dp"
+            app:cardElevation="16dp"
             app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="?android:attr/windowBackground">
+            app:cardBackgroundColor="#F5F5F5">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -176,6 +177,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
+                    android:textColor="#212121"
                     android:lineSpacingExtra="4dp"
                     android:fontFamily="monospace"/>
                 <Button
