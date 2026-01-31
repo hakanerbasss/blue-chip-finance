@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.graphics.drawable.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -116,7 +117,7 @@ class OvertimeFragment : Fragment() {
         lastCalculatedData = CalculationData(salary, calculationMethod, selectedType, baseRate, overtimeRate, hours, isExampleHours, totalAmount)
         displayResult()
         val imm = activity?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
-        imm?.hideSoftKeyboard(activity?.currentFocus?.windowToken, 0)
+        imm?.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
         resultCard.post { scrollView.smoothScrollTo(0, resultCard.top) }
     }
     private fun displayResult() {
