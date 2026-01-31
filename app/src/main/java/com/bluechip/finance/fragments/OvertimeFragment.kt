@@ -20,8 +20,8 @@ import java.io.FileOutputStream
 class OvertimeFragment : Fragment() {
     private lateinit var salaryInput: EditText
     private lateinit var hoursInput: EditText
-    private lateinit var methodSwitch: Switch
-    private lateinit var methodLabel: TextView
+    private lateinit var radio225: RadioButton
+    private lateinit var radio226: RadioButton
     private lateinit var typeSpinner: Spinner
     private lateinit var calculateButton: Button
     private lateinit var resetButton: Button
@@ -44,8 +44,8 @@ class OvertimeFragment : Fragment() {
         scrollView = view.findViewById(R.id.scroll_view)
         salaryInput = view.findViewById(R.id.salary_input)
         hoursInput = view.findViewById(R.id.hours_input)
-        methodSwitch = view.findViewById(R.id.method_switch)
-        methodLabel = view.findViewById(R.id.method_label)
+        radio225 = view.findViewById(R.id.radio_225)
+        radio226 = view.findViewById(R.id.radio_226)
         typeSpinner = view.findViewById(R.id.type_spinner)
         calculateButton = view.findViewById(R.id.calculate_button)
         resetButton = view.findViewById(R.id.reset_button)
@@ -66,20 +66,35 @@ class OvertimeFragment : Fragment() {
         infoButton.drawable?.colorFilter = colorFilter
     }
     private fun setupSpinner() {
-        val adapter = ArrayAdapter(
+        val adapter = object : ArrayAdapter<String>(
             requireContext(),
             R.layout.spinner_item,
             overtimeTypes.map { "${it.percentage} - ${it.name}" }
-        )
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent) as TextView
+                view.setTextColor(Color.WHITE)
+                return view
+            }
+        }
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         typeSpinner.adapter = adapter
         typeSpinner.setSelection(1)
     }
     private fun setupListeners() {
-        methodSwitch.setOnCheckedChangeListener { _, isChecked ->
-            calculationMethod = if (isChecked) 226 else 225
-            methodLabel.text = "$calculationMethod saat"
-            if (resultCard.visibility == View.VISIBLE) { calculate() }
+        radio225.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                calculationMethod = 225
+                radio226.isChecked = false
+                if (resultCard.visibility == View.VISIBLE) { calculate() }
+            }
+        }
+        radio226.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                calculationMethod = 226
+                radio225.isChecked = false
+                if (resultCard.visibility == View.VISIBLE) { calculate() }
+            }
         }
         calculateButton.setOnClickListener { calculate() }
         resetButton.setOnClickListener { reset() }
@@ -149,9 +164,9 @@ class OvertimeFragment : Fragment() {
     private fun reset() {
         salaryInput.text?.clear()
         hoursInput.text?.clear()
-        methodSwitch.isChecked = false
+        radio225.isChecked = true
+        radio226.isChecked = false
         calculationMethod = 225
-        methodLabel.text = "225 saat"
         typeSpinner.setSelection(1)
         resultCard.visibility = View.GONE
         lastCalculatedData = null
