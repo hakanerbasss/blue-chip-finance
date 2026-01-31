@@ -51,20 +51,22 @@ class OvertimeFragment : Fragment() {
         resultText = view.findViewById(R.id.result_text)
         shareButton = view.findViewById(R.id.share_button)
         infoButton = view.findViewById(R.id.info_button)
-        setupListeners()
         setupInfoIcon()
+        setupListeners()
         return view
     }
     private fun setupInfoIcon() {
+        setupListeners()
         val colorFilter = android.graphics.PorterDuffColorFilter(
             Color.parseColor("#1976D2"),
             android.graphics.PorterDuff.Mode.SRC_IN
         )
         infoButton.drawable?.colorFilter = colorFilter
     }
-        val adapter = object : ArrayAdapter<String>(
+        val adapter = ArrayAdapter(
             requireContext(),
-            R.layout.spinner_item,
+    }
+
     private fun setupListeners() {
         typeButton.setOnClickListener { showTypeDialog() }
         calculateButton.setOnClickListener { calculate() }
@@ -72,11 +74,10 @@ class OvertimeFragment : Fragment() {
         shareButton.setOnClickListener { shareResult() }
         infoButton.setOnClickListener { showInfo() }
     }
-    
+
     private fun showTypeDialog() {
         val types = overtimeTypes.map { "${it.percentage} - ${it.name}" }.toTypedArray()
         val currentIndex = overtimeTypes.indexOfFirst { "${it.percentage} - ${it.name}" == typeButton.text.toString() }
-        
         AlertDialog.Builder(requireContext())
             .setTitle("Fazla Mesai Türü Seçin")
             .setSingleChoiceItems(types, currentIndex) { dialog, which ->
@@ -88,6 +89,23 @@ class OvertimeFragment : Fragment() {
             .setNegativeButton("İptal", null)
             .show()
     }
+            R.layout.spinner_item,
+            overtimeTypes.map { "${it.percentage} - ${it.name}" }
+        )
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        typeSpinner.adapter = adapter
+    }
+        methodSwitch.setOnCheckedChangeListener { _, isChecked ->
+            calculationMethod = if (isChecked) 226 else 225
+            methodLabel.text = "$calculationMethod saat"
+            if (resultCard.visibility == View.VISIBLE) { calculate() }
+        }
+        calculateButton.setOnClickListener { calculate() }
+        resetButton.setOnClickListener { reset() }
+        shareButton.setOnClickListener { shareResult() }
+        infoButton.setOnClickListener { showInfo() }
+    }
+    private fun calculate() {
         val salaryText = salaryInput.text.toString()
         if (salaryText.isEmpty()) {
             Toast.makeText(context, "Lutfen net maas giriniz", Toast.LENGTH_SHORT).show()
@@ -107,8 +125,6 @@ class OvertimeFragment : Fragment() {
         val totalAmount = overtimeRate * hours
         lastCalculatedData = CalculationData(salary, calculationMethod, selectedType, baseRate, overtimeRate, hours, isExampleHours, totalAmount)
         displayResult()
-        val imm = activity?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
-        imm?.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
         resultCard.post { scrollView.smoothScrollTo(0, resultCard.top) }
     }
     private fun displayResult() {
@@ -121,7 +137,6 @@ class OvertimeFragment : Fragment() {
         r.append("💵  Birim Ucret\n")
         r.append("    ${formatMoney(data.baseRate)} TL / saat\n\n")
         r.append("📌  ${data.type.percentage} - ${data.type.name}\n")
-        typeButton.text = "%50 - Fazla Çalışma"
         r.append("    İş Kanunu ${data.type.law}\n")
         r.append("    ${data.type.description}\n\n")
         if (data.type.percentage == "%75") {
@@ -152,6 +167,7 @@ class OvertimeFragment : Fragment() {
         salaryInput.text?.clear()
         hoursInput.text?.clear()
         calculationMethod = 225
+        typeButton.text = "%50 - Fazla Çalışma"
         resultCard.visibility = View.GONE
         lastCalculatedData = null
     }
