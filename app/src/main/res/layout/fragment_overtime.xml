@@ -63,8 +63,6 @@
                 android:inputType="numberDecimal"
                 android:textSize="17sp"/>
         </com.google.android.material.textfield.TextInputLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
         <RadioGroup
             android:id="@+id/method_radio_group"
             android:layout_width="match_parent"
@@ -91,31 +89,6 @@
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"/>
         </RadioGroup>
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="14dp"
-            android:background="@android:drawable/dialog_holo_light_frame">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Hesaplama Yöntemi"
-                android:textSize="15sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/method_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:text="225 saat"
-                android:textSize="14sp"/>
-            <Switch
-                android:id="@+id/method_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -159,7 +132,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Switch değişince sonuç otomatik güncellenir"
+            android:text="Seçim değişince sonuç otomatik güncellenir"
             android:textSize="12sp"
             android:textStyle="italic"
             android:alpha="0.6"/>
@@ -202,6 +175,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
+                    android:textColor="#212121"
                     android:lineSpacingExtra="4dp"
                     android:fontFamily="monospace"/>
                 <Button
