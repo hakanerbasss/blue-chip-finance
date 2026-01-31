@@ -1,15 +1,15 @@
 package com.bluechip.finance.fragments
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.bluechip.finance.R
 import com.google.android.material.card.MaterialCardView
@@ -29,13 +29,20 @@ class HomeFragment : Fragment() {
     private lateinit var priceUpdateTime: TextView
     private lateinit var btnRefresh: Button
     private lateinit var newsContainer: LinearLayout
+    private lateinit var currencySwitch: Switch
+    private lateinit var silverInfo: TextView
     
     private val scope = CoroutineScope(Dispatchers.Main + Job())
+    private var usdRate = 32.5
+    private var eurRate = 35.2
+    private var goldGramTL = 2450.0
+    private var btcUSD = 64200.0
+    private var ethUSD = 3100.0
+    private var isTL = true
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         
-        // Fiyat TextViews
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -45,6 +52,8 @@ class HomeFragment : Fragment() {
         priceUpdateTime = view.findViewById(R.id.price_update_time)
         btnRefresh = view.findViewById(R.id.btn_refresh_prices)
         newsContainer = view.findViewById(R.id.news_container)
+        currencySwitch = view.findViewById(R.id.currency_switch)
+        silverInfo = view.findViewById(R.id.silver_info)
         
         // Modül kartları
         view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener {
@@ -68,7 +77,15 @@ class HomeFragment : Fragment() {
             loadNews()
         }
         
-        // İlk yükleme
+        currencySwitch.setOnCheckedChangeListener { _, isChecked ->
+            isTL = !isChecked
+            updatePriceDisplay()
+        }
+        
+        silverInfo.setOnClickListener {
+            showSilverInfo()
+        }
+        
         loadPrices()
         loadNews()
         
@@ -88,11 +105,10 @@ class HomeFragment : Fragment() {
             try {
                 btnRefresh.isEnabled = false
                 
-                // TCMB API (Dolar, Euro, Altın)
+                // TCMB API
                 val tcmbData = withContext(Dispatchers.IO) {
-                    val url = "https://www.tcmb.gov.tr/kurlar/today.xml"
                     try {
-                        URL(url).readText()
+                        URL("https://www.tcmb.gov.tr/kurlar/today.xml").readText()
                     } catch (e: Exception) {
                         null
                     }
@@ -100,18 +116,12 @@ class HomeFragment : Fragment() {
                 
                 if (tcmbData != null) {
                     parseTCMBData(tcmbData)
-                } else {
-                    priceUsd.text = "32.50₺"
-                    priceEur.text = "35.20₺"
-                    priceGold.text = "2,450₺"
-                    priceSilver.text = "28₺"
                 }
                 
-                // CoinGecko API (BTC, ETH)
+                // CoinGecko API
                 val cryptoData = withContext(Dispatchers.IO) {
                     try {
-                        val url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd"
-                        URL(url).readText()
+                        URL("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd").readText()
                     } catch (e: Exception) {
                         null
                     }
@@ -119,14 +129,11 @@ class HomeFragment : Fragment() {
                 
                 if (cryptoData != null) {
                     val json = JSONObject(cryptoData)
-                    val btc = json.getJSONObject("bitcoin").getDouble("usd")
-                    val eth = json.getJSONObject("ethereum").getDouble("usd")
-                    priceBtc.text = "${formatNumber(btc)}$"
-                    priceEth.text = "${formatNumber(eth)}$"
-                } else {
-                    priceBtc.text = "64,200$"
-                    priceEth.text = "3,100$"
+                    btcUSD = json.getJSONObject("bitcoin").getDouble("usd")
+                    ethUSD = json.getJSONObject("ethereum").getDouble("usd")
                 }
+                
+                updatePriceDisplay()
                 
                 val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                 priceUpdateTime.text = "Son güncelleme: $time"
@@ -141,70 +148,100 @@ class HomeFragment : Fragment() {
     
     private fun parseTCMBData(xml: String) {
         try {
-            // Basit XML parse (Dolar)
-            val usdMatch = Regex("<Currency[^>]*CurrencyCode=\"USD\"[^>]*>.*?<ForexSelling>([0-9.]+)</ForexSelling>", RegexOption.DOT_MATCHES_ALL)
-                .find(xml)
+            val usdMatch = Regex("<Currency[^>]*CurrencyCode=\"USD\"[^>]*>.*?<ForexSelling>([0-9.]+)</ForexSelling>", RegexOption.DOT_MATCHES_ALL).find(xml)
             if (usdMatch != null) {
-                val usd = usdMatch.groupValues[1].toDouble()
-                priceUsd.text = "${formatMoney(usd)}₺"
+                usdRate = usdMatch.groupValues[1].toDouble()
             }
             
-            // Euro
-            val eurMatch = Regex("<Currency[^>]*CurrencyCode=\"EUR\"[^>]*>.*?<ForexSelling>([0-9.]+)</ForexSelling>", RegexOption.DOT_MATCHES_ALL)
-                .find(xml)
+            val eurMatch = Regex("<Currency[^>]*CurrencyCode=\"EUR\"[^>]*>.*?<ForexSelling>([0-9.]+)</ForexSelling>", RegexOption.DOT_MATCHES_ALL).find(xml)
             if (eurMatch != null) {
-                val eur = eurMatch.groupValues[1].toDouble()
-                priceEur.text = "${formatMoney(eur)}₺"
+                eurRate = eurMatch.groupValues[1].toDouble()
             }
             
-            // Altın (gram bazında hesaplama)
-            val goldMatch = Regex("<Currency[^>]*CurrencyCode=\"XAU\"[^>]*>.*?<ForexSelling>([0-9.]+)</ForexSelling>", RegexOption.DOT_MATCHES_ALL)
-                .find(xml)
+            val goldMatch = Regex("<Currency[^>]*CurrencyCode=\"XAU\"[^>]*>.*?<ForexSelling>([0-9.]+)</ForexSelling>", RegexOption.DOT_MATCHES_ALL).find(xml)
             if (goldMatch != null) {
                 val goldOunce = goldMatch.groupValues[1].toDouble()
-                val goldGram = goldOunce / 31.1035 // ons -> gram
-                priceGold.text = "${formatMoney(goldGram)}₺"
+                goldGramTL = goldOunce / 31.1035
             }
-            
-            // Gümüş (örnek değer)
-            priceSilver.text = "28₺"
-            
         } catch (e: Exception) {
-            // Hata durumunda varsayılan değerler
+            // Varsayılan değerler
         }
+    }
+    
+    private fun updatePriceDisplay() {
+        if (isTL) {
+            priceUsd.text = "${formatMoney(usdRate)}₺"
+            priceEur.text = "${formatMoney(eurRate)}₺"
+            priceGold.text = "${formatMoney(goldGramTL)}₺"
+            priceSilver.text = "${formatMoney(goldGramTL / 80)}₺"
+            priceBtc.text = "${formatMoney(btcUSD * usdRate)}₺"
+            priceEth.text = "${formatMoney(ethUSD * usdRate)}₺"
+        } else {
+            priceUsd.text = "1.00$"
+            priceEur.text = "${formatMoney(eurRate / usdRate)}$"
+            priceGold.text = "${formatMoney(goldGramTL / usdRate)}$"
+            priceSilver.text = "${formatMoney(goldGramTL / 80 / usdRate)}$"
+            priceBtc.text = "${formatNumber(btcUSD)}$"
+            priceEth.text = "${formatNumber(ethUSD)}$"
+        }
+    }
+    
+    private fun showSilverInfo() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Gümüş Fiyatı Hakkında")
+            .setMessage("Gümüş fiyatı, API maliyet kısıtlaması nedeniyle altın/gümüş oranı (1:80) kullanılarak hesaplanmaktadır. Gerçek zamanlı fiyat için lütfen aşağıdaki siteyi ziyaret edin.")
+            .setPositiveButton("Tamam", null)
+            .setNeutralButton("Siteye Git") { _, _ ->
+                openUrl("https://kuyumcukur.com/canli-altin-fiyatlari")
+            }
+            .show()
     }
     
     private fun loadNews() {
         scope.launch {
             newsContainer.removeAllViews()
             
-            val news = withContext(Dispatchers.IO) {
-                listOf(
-                    NewsItem("Asgari ücret 2025 zam oranı belli oldu", "https://www.csgb.gov.tr", "2 saat önce"),
-                    NewsItem("Kıdem tazminatı tavanı güncellendi", "https://www.sgk.gov.tr", "5 saat önce"),
-                    NewsItem("Fazla mesai düzenlemesi TBMM'de", "https://www.iskur.gov.tr", "1 gün önce")
-                )
-            }
+            val news = listOf(
+                NewsItem("Asgari ücret 2025 zam oranı belli oldu", "https://www.csgb.gov.tr", "2 saat önce"),
+                NewsItem("Kıdem tazminatı tavanı güncellendi", "https://www.sgk.gov.tr", "5 saat önce"),
+                NewsItem("Fazla mesai düzenlemesi TBMM'de", "https://www.iskur.gov.tr", "1 gün önce")
+            )
             
             news.forEach { item ->
                 val itemView = layoutInflater.inflate(R.layout.news_item, newsContainer, false)
                 itemView.findViewById<TextView>(R.id.news_title).text = item.title
                 itemView.findViewById<TextView>(R.id.news_time).text = item.time
                 itemView.setOnClickListener {
-                    openUrl(item.url)
+                    showNewsDialog(item.title, item.url)
                 }
                 newsContainer.addView(itemView)
             }
             
-            // "Daha Fazla" butonu
             val moreBtn = Button(context).apply {
                 text = "DAHA FAZLA HABER →"
                 setOnClickListener {
-                    openUrl("https://www.csgb.gov.tr/haberler")
+                    showNewsDialog("Tüm Haberler", "https://www.csgb.gov.tr/haberler")
                 }
             }
             newsContainer.addView(moreBtn)
         }
+    }
+    
+    private fun showNewsDialog(title: String, url: String) {
+        val webView = WebView(requireContext()).apply {
+            webViewClient = WebViewClient()
+            settings.javaScriptEnabled = true
+            loadUrl(url)
+        }
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setView(webView)
+            .setPositiveButton("Kapat", null)
+            .setNeutralButton("Tarayıcıda Aç") { _, _ ->
+                openUrl(url)
+            }
+            .show()
     }
     
     private fun openUrl(url: String) {

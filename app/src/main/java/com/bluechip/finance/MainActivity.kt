@@ -1,6 +1,7 @@
 package com.bluechip.finance
 
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bluechip.finance.fragments.HomeFragment
 import com.bluechip.finance.fragments.OvertimeFragment
@@ -18,7 +19,6 @@ class MainActivity : AppCompatActivity() {
         
         bottomNav = findViewById(R.id.bottom_navigation)
         
-        // İlk açılışta HomeFragment göster
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, HomeFragment())
@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
+                    supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, HomeFragment())
                         .commit()
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_overtime -> {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, OvertimeFragment())
+                        .addToBackStack(null)
                         .commit()
                     true
                 }
@@ -45,6 +47,29 @@ class MainActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+    }
+    
+    override fun onBackPressed() {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        
+        if (currentFragment is HomeFragment) {
+            // Home'daysa çıkış dialog
+            AlertDialog.Builder(this)
+                .setTitle("Çıkış")
+                .setMessage("Uygulamadan çıkmak istiyor musunuz?")
+                .setPositiveButton("Evet") { _, _ ->
+                    finish()
+                }
+                .setNegativeButton("Hayır", null)
+                .show()
+        } else {
+            // Diğer sayfalardaysa Home'a dön
+            supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment())
+                .commit()
+            bottomNav.selectedItemId = R.id.nav_home
         }
     }
     
