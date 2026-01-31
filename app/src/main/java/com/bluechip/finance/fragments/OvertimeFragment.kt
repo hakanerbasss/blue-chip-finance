@@ -56,6 +56,7 @@ class OvertimeFragment : Fragment() {
         setupSpinner()
         setupListeners()
         setupInfoIcon()
+        setupSwitchColors()
         return view
     }
     private fun setupInfoIcon() {
@@ -64,6 +65,14 @@ class OvertimeFragment : Fragment() {
             android.graphics.PorterDuff.Mode.SRC_IN
         )
         infoButton.drawable?.colorFilter = colorFilter
+    }
+    private fun setupSwitchColors() {
+        val ctx = requireContext()
+        val isDark = ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        if (isDark) {
+            methodSwitch.trackTintList = android.graphics.drawable.ColorStateList.valueOf(Color.parseColor("#616161"))
+            methodSwitch.thumbTintList = android.graphics.drawable.ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
+        }
     }
     private fun setupSpinner() {
         val adapter = ArrayAdapter(
@@ -106,6 +115,8 @@ class OvertimeFragment : Fragment() {
         val totalAmount = overtimeRate * hours
         lastCalculatedData = CalculationData(salary, calculationMethod, selectedType, baseRate, overtimeRate, hours, isExampleHours, totalAmount)
         displayResult()
+        val imm = activity?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+        imm?.hideSoftKeyboard(activity?.currentFocus?.windowToken, 0)
         resultCard.post { scrollView.smoothScrollTo(0, resultCard.top) }
     }
     private fun displayResult() {
