@@ -10,8 +10,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
@@ -57,7 +55,15 @@ class OvertimeFragment : Fragment() {
         infoButton = view.findViewById(R.id.info_button)
         setupSpinner()
         setupListeners()
+        setupInfoIcon()
         return view
+    }
+    private fun setupInfoIcon() {
+        val colorFilter = android.graphics.PorterDuffColorFilter(
+            Color.parseColor("#1976D2"),
+            android.graphics.PorterDuff.Mode.SRC_IN
+        )
+        infoButton.drawable?.colorFilter = colorFilter
     }
     private fun setupSpinner() {
         val adapter = ArrayAdapter(
@@ -83,12 +89,12 @@ class OvertimeFragment : Fragment() {
     private fun calculate() {
         val salaryText = salaryInput.text.toString()
         if (salaryText.isEmpty()) {
-            Toast.makeText(context, "Lutfen maas giriniz", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Lutfen net maas giriniz", Toast.LENGTH_SHORT).show()
             return
         }
         val salary = salaryText.toDoubleOrNull()
         if (salary == null || salary <= 0) {
-            Toast.makeText(context, "Gecerli bir maas giriniz", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Gecerli bir net maas giriniz", Toast.LENGTH_SHORT).show()
             return
         }
         val selectedType = overtimeTypes[typeSpinner.selectedItemPosition]
@@ -105,31 +111,36 @@ class OvertimeFragment : Fragment() {
     private fun displayResult() {
         val data = lastCalculatedData ?: return
         val r = StringBuilder()
-        r.append("SONUC\n\n")
-        r.append("Brut Maas: ${formatMoney(data.salary)} TL\n")
-        r.append("Hesaplama: ${data.method} saat\n\n")
-        r.append("Birim Ucret:\n")
-        r.append("${formatMoney(data.baseRate)} TL/saat\n\n")
-        r.append("${data.type.percentage} - ${data.type.name}\n")
-        r.append("-------------------\n")
-        r.append("Is Kanunu ${data.type.law}\n")
-        r.append("${data.type.description}\n\n")
+        r.append("━━━━━━━━━━━━━━━━━━━━\n")
+        r.append("💰  NET MAAS: ${formatMoney(data.salary)} TL\n")
+        r.append("⚙️  Hesaplama: ${data.method} saat\n")
+        r.append("━━━━━━━━━━━━━━━━━━━━\n\n")
+        r.append("💵  Birim Ucret\n")
+        r.append("    ${formatMoney(data.baseRate)} TL / saat\n\n")
+        r.append("📌  ${data.type.percentage} - ${data.type.name}\n")
+        r.append("    İş Kanunu ${data.type.law}\n")
+        r.append("    ${data.type.description}\n\n")
         if (data.type.percentage == "%75") {
-            r.append("Hesaplama Detayi:\n")
-            r.append("* Gece (%25): +${formatMoney(data.baseRate * 0.25)} TL\n")
-            r.append("* Fazla (%50): +${formatMoney(data.baseRate * 0.5)} TL\n")
-            r.append("* Toplam: %75 fazla\n\n")
+            r.append("📊  Hesaplama Detayı:\n")
+            r.append("    • Gece  (%25) : +${formatMoney(data.baseRate * 0.25)} TL\n")
+            r.append("    • Fazla (%50) : +${formatMoney(data.baseRate * 0.5)} TL\n")
+            r.append("    • Toplam      : %75 fazla\n\n")
         } else if (data.type.percentage == "%125") {
-            r.append("Hesaplama Detayi:\n")
-            r.append("* Gece (%25): +${formatMoney(data.baseRate * 0.25)} TL\n")
-            r.append("* Tatil (%100): +${formatMoney(data.baseRate * 1.0)} TL\n")
-            r.append("* Toplam: %125 fazla\n\n")
+            r.append("📊  Hesaplama Detayı:\n")
+            r.append("    • Gece  (%25)  : +${formatMoney(data.baseRate * 0.25)} TL\n")
+            r.append("    • Tatil (%100) : +${formatMoney(data.baseRate * 1.0)} TL\n")
+            r.append("    • Toplam       : %125 fazla\n\n")
         }
-        r.append("Saatlik Ucret:\n")
-        r.append("${formatMoney(data.overtimeRate)} TL/saat\n\n")
-        if (data.isExampleHours) { r.append("Ornek: ${data.hours.toInt()} saat:\n") }
-        else { r.append("Toplam (${data.hours.toInt()} saat):\n") }
-        r.append("${formatMoney(data.totalAmount)} TL")
+        r.append("━━━━━━━━━━━━━━━━━━━━\n")
+        r.append("💎  Saatlik Ücret\n")
+        r.append("    ${formatMoney(data.overtimeRate)} TL / saat\n\n")
+        if (data.isExampleHours) {
+            r.append("📈  Örnek (${data.hours.toInt()} saat)\n")
+        } else {
+            r.append("📈  Toplam (${data.hours.toInt()} saat)\n")
+        }
+        r.append("    ${formatMoney(data.totalAmount)} TL\n")
+        r.append("━━━━━━━━━━━━━━━━━━━━")
         resultText.text = r.toString()
         resultCard.visibility = View.VISIBLE
     }
@@ -160,16 +171,31 @@ class OvertimeFragment : Fragment() {
     }
     private fun createTextShare(data: CalculationData): String {
         return """
-Fazla Mesai Hesabim
-Brut Maas: ${formatMoney(data.salary)} TL
-Hesaplama: ${data.method} saat
-${data.type.percentage} - ${data.type.name}
-(Is Kanunu ${data.type.law})
-Birim: ${formatMoney(data.baseRate)} TL/saat
-Saatlik: ${formatMoney(data.overtimeRate)} TL/saat
-${if (data.isExampleHours) "Ornek " else ""}${data.hours.toInt()} saat: ${formatMoney(data.totalAmount)} TL
-Blue Chip Finance ile hesaplandı
+╔══════════════════════════════╗
+║   💰 FAZLA MESAİ HESABIM    ║
+╠══════════════════════════════╣
+║                              ║
+║  Net Maaş   : ${padEnd(formatMoney(data.salary) + " TL", 14)}║
+║  Yöntem     : ${padEnd("${data.method} saat", 14)}║
+║  Tür        : ${padEnd("${data.type.percentage} ${data.type.name}", 14)}║
+║  İş Kanunu  : ${padEnd(data.type.law, 14)}║
+║                              ║
+╠══════════════════════════════╣
+║                              ║
+║  Birim Ücret: ${padEnd(formatMoney(data.baseRate) + " TL", 14)}║
+║  Saatlik    : ${padEnd(formatMoney(data.overtimeRate) + " TL", 14)}║
+║  ${if (data.isExampleHours) "Örnek" else "Toplam"} (${data.hours.toInt()}h): ${padEnd(formatMoney(data.totalAmount) + " TL", 13)}║
+║                              ║
+╠══════════════════════════════╣
+║  📱 Blue Chip Finance        ║
+║  Indir: play.google.com/     ║
+║  store/apps/details?id=      ║
+║  com.bluechip.finance        ║
+╚══════════════════════════════╝
         """.trimIndent()
+    }
+    private fun padEnd(text: String, length: Int): String {
+        return if (text.length >= length) text else text + " ".repeat(length - text.length)
     }
     private fun createImageShare(data: CalculationData): Uri? {
         try {
@@ -177,52 +203,113 @@ Blue Chip Finance ile hesaplandı
             val height = 1350
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-            val paint = Paint().apply {
-                shader = android.graphics.LinearGradient(0f, 0f, 0f, height.toFloat(), Color.parseColor("#1976D2"), Color.parseColor("#0D47A1"), android.graphics.Shader.TileMode.CLAMP)
+            // Arka plan gradient
+            val bgPaint = Paint().apply {
+                shader = android.graphics.LinearGradient(0f, 0f, 0f, height.toFloat(),
+                    Color.parseColor("#0D47A1"), Color.parseColor("#1565C0"),
+                    android.graphics.Shader.TileMode.CLAMP)
             }
-            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
-            paint.shader = null
-            paint.color = Color.WHITE
-            paint.textSize = 80f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            paint.textAlign = Paint.Align.CENTER
-            canvas.drawText("FAZLA MESAİ HESABIM", width / 2f, 150f, paint)
-            paint.strokeWidth = 5f
-            canvas.drawLine(100f, 200f, width - 100f, 200f, paint)
-            paint.textSize = 50f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            paint.textAlign = Paint.Align.LEFT
-            var y = 320f
-            val lineHeight = 80f
-            canvas.drawText("Brut Maas: ${formatMoney(data.salary)} TL", 100f, y, paint)
-            y += lineHeight
-            canvas.drawText("Hesaplama: ${data.method} saat", 100f, y, paint)
-            y += lineHeight + 40f
-            canvas.drawLine(100f, y, width - 100f, y, paint)
-            y += 80f
-            paint.textSize = 55f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            canvas.drawText("${data.type.percentage} - ${data.type.name}", 100f, y, paint)
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
+            // Üst kart bölümü
+            val cardPaint = Paint().apply {
+                color = Color.parseColor("#FFFFFF")
+                maskFilter = android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
+            canvas.drawRoundRect(60f, 80f, 1020f, 680f, 40f, 40f, cardPaint)
+            cardPaint.maskFilter = null
+            cardPaint.color = Color.WHITE
+            canvas.drawRoundRect(60f, 80f, 1020f, 680f, 40f, 40f, cardPaint)
+            // Alt kart bölümü
+            val cardPaint2 = Paint().apply {
+                color = Color.parseColor("#FFFFFF")
+                maskFilter = android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
+            canvas.drawRoundRect(60f, 720f, 1020f, 1180f, 40f, 40f, cardPaint2)
+            cardPaint2.maskFilter = null
+            cardPaint2.color = Color.WHITE
+            canvas.drawRoundRect(60f, 720f, 1020f, 1180f, 40f, 40f, cardPaint2)
+            // Başlık
+            val titlePaint = Paint().apply {
+                color = Color.parseColor("#0D47A1")
+                textSize = 72f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.CENTER
+            }
+            canvas.drawText("FAZLA MESAİ HESABIM", 540f, 170f, titlePaint)
+            // Alt başlık çizgi
+            val linePaint = Paint().apply {
+                color = Color.parseColor("#1976D2")
+                strokeWidth = 6f
+            }
+            canvas.drawLine(200f, 200f, 880f, 200f, linePaint)
+            // Üst kart içerik
+            val labelPaint = Paint().apply {
+                color = Color.parseColor("#757575")
+                textSize = 40f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                textAlign = Paint.Align.LEFT
+            }
+            val valuePaint = Paint().apply {
+                color = Color.parseColor("#212121")
+                textSize = 44f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.LEFT
+            }
+            var y = 290f
+            canvas.drawText("NET MAAŞ", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${formatMoney(data.salary)} TL", 140f, y, valuePaint)
             y += 70f
-            paint.textSize = 45f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            canvas.drawText("Is Kanunu ${data.type.law}", 100f, y, paint)
-            y += lineHeight + 40f
-            canvas.drawText("Birim: ${formatMoney(data.baseRate)} TL/saat", 100f, y, paint)
-            y += lineHeight
-            paint.textSize = 60f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            canvas.drawText("Saatlik: ${formatMoney(data.overtimeRate)} TL/saat", 100f, y, paint)
-            y += lineHeight + 40f
-            paint.textSize = 55f
-            canvas.drawText("${data.hours.toInt()} saat = ${formatMoney(data.totalAmount)} TL", 100f, y, paint)
-            y += lineHeight + 80f
-            canvas.drawLine(100f, y, width - 100f, y, paint)
+            canvas.drawText("HESAPLAMA YÖNTEMI", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${data.method} saat", 140f, y, valuePaint)
+            y += 70f
+            canvas.drawText("FAZLA MESAİ TÜRÜ", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${data.type.percentage} - ${data.type.name}", 140f, y, valuePaint)
+            y += 50f
+            canvas.drawText("İş Kanunu ${data.type.law}", 140f, y, labelPaint)
+            // Alt kart içerik
+            y = 810f
+            canvas.drawText("BİRİM ÜCRET", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${formatMoney(data.baseRate)} TL / saat", 140f, y, valuePaint)
             y += 80f
-            paint.textSize = 50f
-            paint.textAlign = Paint.Align.CENTER
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            canvas.drawText("Blue Chip Finance", width / 2f, y, paint)
+            canvas.drawText("SAATLIK ÜCRET", 140f, y, labelPaint)
+            y += 50f
+            val saatlikPaint = Paint().apply {
+                color = Color.parseColor("#1976D2")
+                textSize = 56f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.LEFT
+            }
+            canvas.drawText("${formatMoney(data.overtimeRate)} TL / saat", 140f, y, saatlikPaint)
+            y += 80f
+            canvas.drawText("${if (data.isExampleHours) "ÖRNEK" else "TOPLAM"} (${data.hours.toInt()} SAAT)", 140f, y, labelPaint)
+            y += 55f
+            val totalPaint = Paint().apply {
+                color = Color.parseColor("#0D47A1")
+                textSize = 64f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.LEFT
+            }
+            canvas.drawText("${formatMoney(data.totalAmount)} TL", 140f, y, totalPaint)
+            // Footer
+            val footerPaint = Paint().apply {
+                color = Color.WHITE
+                textSize = 38f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.CENTER
+            }
+            canvas.drawText("📱 Blue Chip Finance", 540f, 1260f, footerPaint)
+            val footerPaint2 = Paint().apply {
+                color = Color.parseColor("#BBDEFB")
+                textSize = 32f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                textAlign = Paint.Align.CENTER
+            }
+            canvas.drawText("play.google.com/store/apps/details?id=com.bluechip.finance", 540f, 1305f, footerPaint2)
+            // Dosyaya kaydet
             val file = File(requireContext().cacheDir, "fazla_mesai_${System.currentTimeMillis()}.png")
             val fos = FileOutputStream(file)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
@@ -235,51 +322,18 @@ Blue Chip Finance ile hesaplandı
         }
     }
     private fun showInfo() {
-        val message = """
-FAZLA MESAİ TÜRLERİ
-
-%25 - GECE ÇALIŞMASI
-Is Kanunu Mad. 69
-20:00-06:00 arası
-(Maaş / 225) x 1.25
-
-%50 - FAZLA ÇALIŞMA
-Is Kanunu Mad. 41
-Haftalık 45 saati aşan
-(Maaş / 225) x 1.5
-
-%75 - GECE + FAZLA
-Gece saatlerinde fazla çalışma
-(Maaş / 225) x 1.75
-
-%100 - ULUSAL BAYRAM/TATİL
-Is Kanunu Mad. 47
-Bayram ve genel tatil günleri
-(Maaş / 225) x 2.0
-
-%125 - GECE + TATİL
-Tatil günü gece çalışması
-(Maaş / 225) x 2.25
-
-DİKKAT: Net tutar için vergi ve SGK kesintileri düşülmelidir.
-        """.trimIndent()
+        val inflater = android.view.LayoutInflater.from(requireContext())
+        val view = inflater.inflate(R.layout.info_dialog_layout, null)
         AlertDialog.Builder(requireContext())
             .setTitle("Fazla Mesai Bilgileri")
-            .setMessage(message)
+            .setView(view)
             .setPositiveButton("Tamam", null)
-            .setNeutralButton("İş Kanunu") { _, _ -> showLawWebView() }
+            .setNeutralButton("İş Kanunu") { _, _ -> openLawInBrowser() }
             .show()
     }
-    private fun showLawWebView() {
-        val webView = WebView(requireContext()).apply {
-            webViewClient = WebViewClient()
-            loadUrl("https://www.mevzuat.gov.tr/MevzuatMetin/1.5.4857.pdf")
-        }
-        AlertDialog.Builder(requireContext())
-            .setTitle("İş Kanunu")
-            .setView(webView)
-            .setPositiveButton("Kapat", null)
-            .show()
+    private fun openLawInBrowser() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.mevzuat.gov.tr/MevzuatMetin/1.5.4857.pdf"))
+        startActivity(intent)
     }
     private fun formatMoney(amount: Double): String {
         return String.format("%,.2f", amount).replace(',', 'X').replace('.', ',').replace('X', '.')
