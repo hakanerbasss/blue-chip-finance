@@ -68,6 +68,8 @@ class OvertimeFragment : Fragment() {
         val context = requireContext()
         val isDark = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
         if (isDark) {
+            val trackColor = ColorStateList.valueOf(Color.parseColor("#616161"))
+            val thumbColor = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
             methodSwitch.trackTintList = trackColor
             methodSwitch.thumbTintList = thumbColor
         }
