@@ -106,6 +106,8 @@ class OvertimeFragment : Fragment() {
         val totalAmount = overtimeRate * hours
         lastCalculatedData = CalculationData(salary, calculationMethod, selectedType, baseRate, overtimeRate, hours, isExampleHours, totalAmount)
         displayResult()
+        val imm = activity?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+        imm?.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
         resultCard.post { scrollView.smoothScrollTo(0, resultCard.top) }
     }
     private fun displayResult() {
