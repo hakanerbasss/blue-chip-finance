@@ -71,8 +71,8 @@ class OvertimeFragment : Fragment() {
         val ctx = requireContext()
         val isDark = ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
         if (isDark) {
-            methodSwitch.trackTintList = android.graphics.drawable.ColorStateList.valueOf(Color.parseColor("#616161"))
-            methodSwitch.thumbTintList = android.graphics.drawable.ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
+            methodSwitch.trackTintList = ColorStateList.valueOf(Color.parseColor("#616161"))
+            methodSwitch.thumbTintList = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
         }
     }
     private fun setupSpinner() {
