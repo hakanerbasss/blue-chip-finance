@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import android.graphics.drawable.ColorStateList
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -57,23 +56,21 @@ class OvertimeFragment : Fragment() {
         setupSpinner()
         setupListeners()
         setupInfoIcon()
-        setupSwitchColors()
         return view
     }
     private fun setupInfoIcon() {
-        val colorFilter = android.graphics.PorterDuffColorFilter(Color.parseColor("#1976D2"), android.graphics.PorterDuff.Mode.SRC_IN)
+        val colorFilter = android.graphics.PorterDuffColorFilter(
+            Color.parseColor("#1976D2"),
+            android.graphics.PorterDuff.Mode.SRC_IN
+        )
         infoButton.drawable?.colorFilter = colorFilter
     }
-    private fun setupSwitchColors() {
-        val context = requireContext()
-        val isDark = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        if (isDark) {
-            methodSwitch.trackTintList = trackColor
-            methodSwitch.thumbTintList = thumbColor
-        }
-    }
     private fun setupSpinner() {
-        val adapter = ArrayAdapter(requireContext(), R.layout.spinner_item, overtimeTypes.map { "${it.percentage} - ${it.name}" })
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.spinner_item,
+            overtimeTypes.map { "${it.percentage} - ${it.name}" }
+        )
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         typeSpinner.adapter = adapter
         typeSpinner.setSelection(1)
@@ -137,8 +134,11 @@ class OvertimeFragment : Fragment() {
         r.append("━━━━━━━━━━━━━━━━━━━━\n")
         r.append("💎  Saatlik Ücret\n")
         r.append("    ${formatMoney(data.overtimeRate)} TL / saat\n\n")
-        if (data.isExampleHours) { r.append("📈  Örnek (${data.hours.toInt()} saat)\n") }
-        else { r.append("📈  Toplam (${data.hours.toInt()} saat)\n") }
+        if (data.isExampleHours) {
+            r.append("📈  Örnek (${data.hours.toInt()} saat)\n")
+        } else {
+            r.append("📈  Toplam (${data.hours.toInt()} saat)\n")
+        }
         r.append("    ${formatMoney(data.totalAmount)} TL\n")
         r.append("━━━━━━━━━━━━━━━━━━━━")
         resultText.text = r.toString()
@@ -174,18 +174,22 @@ class OvertimeFragment : Fragment() {
 ╔══════════════════════════════╗
 ║   💰 FAZLA MESAİ HESABIM    ║
 ╠══════════════════════════════╣
+║                              ║
 ║  Net Maaş   : ${padEnd(formatMoney(data.salary) + " TL", 14)}║
 ║  Yöntem     : ${padEnd("${data.method} saat", 14)}║
 ║  Tür        : ${padEnd("${data.type.percentage} ${data.type.name}", 14)}║
 ║  İş Kanunu  : ${padEnd(data.type.law, 14)}║
+║                              ║
 ╠══════════════════════════════╣
+║                              ║
 ║  Birim Ücret: ${padEnd(formatMoney(data.baseRate) + " TL", 14)}║
 ║  Saatlik    : ${padEnd(formatMoney(data.overtimeRate) + " TL", 14)}║
 ║  ${if (data.isExampleHours) "Örnek" else "Toplam"} (${data.hours.toInt()}h): ${padEnd(formatMoney(data.totalAmount) + " TL", 13)}║
+║                              ║
 ╠══════════════════════════════╣
 ║  📱 Blue Chip Finance        ║
-║  play.google.com/store/      ║
-║  apps/details?id=            ║
+║  Indir: play.google.com/     ║
+║  store/apps/details?id=      ║
 ║  com.bluechip.finance        ║
 ╚══════════════════════════════╝
         """.trimIndent()
@@ -199,45 +203,113 @@ class OvertimeFragment : Fragment() {
             val height = 1350
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
+            // Arka plan gradient
             val bgPaint = Paint().apply {
-                shader = android.graphics.LinearGradient(0f, 0f, 0f, height.toFloat(), Color.parseColor("#0D47A1"), Color.parseColor("#1565C0"), android.graphics.Shader.TileMode.CLAMP)
+                shader = android.graphics.LinearGradient(0f, 0f, 0f, height.toFloat(),
+                    Color.parseColor("#0D47A1"), Color.parseColor("#1565C0"),
+                    android.graphics.Shader.TileMode.CLAMP)
             }
             canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
-            val cardPaint = Paint().apply { color = Color.WHITE; maskFilter = android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL) }
+            // Üst kart bölümü
+            val cardPaint = Paint().apply {
+                color = Color.parseColor("#FFFFFF")
+                maskFilter = android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
             canvas.drawRoundRect(60f, 80f, 1020f, 680f, 40f, 40f, cardPaint)
-            cardPaint.maskFilter = null; cardPaint.color = Color.WHITE
+            cardPaint.maskFilter = null
+            cardPaint.color = Color.WHITE
             canvas.drawRoundRect(60f, 80f, 1020f, 680f, 40f, 40f, cardPaint)
-            val cardPaint2 = Paint().apply { color = Color.WHITE; maskFilter = android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL) }
+            // Alt kart bölümü
+            val cardPaint2 = Paint().apply {
+                color = Color.parseColor("#FFFFFF")
+                maskFilter = android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
             canvas.drawRoundRect(60f, 720f, 1020f, 1180f, 40f, 40f, cardPaint2)
-            cardPaint2.maskFilter = null; cardPaint2.color = Color.WHITE
+            cardPaint2.maskFilter = null
+            cardPaint2.color = Color.WHITE
             canvas.drawRoundRect(60f, 720f, 1020f, 1180f, 40f, 40f, cardPaint2)
-            val titlePaint = Paint().apply { color = Color.parseColor("#0D47A1"); textSize = 72f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); textAlign = Paint.Align.CENTER }
+            // Başlık
+            val titlePaint = Paint().apply {
+                color = Color.parseColor("#0D47A1")
+                textSize = 72f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.CENTER
+            }
             canvas.drawText("FAZLA MESAİ HESABIM", 540f, 170f, titlePaint)
-            val linePaint = Paint().apply { color = Color.parseColor("#1976D2"); strokeWidth = 6f }
+            // Alt başlık çizgi
+            val linePaint = Paint().apply {
+                color = Color.parseColor("#1976D2")
+                strokeWidth = 6f
+            }
             canvas.drawLine(200f, 200f, 880f, 200f, linePaint)
-            val labelPaint = Paint().apply { color = Color.parseColor("#757575"); textSize = 40f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL); textAlign = Paint.Align.LEFT }
-            val valuePaint = Paint().apply { color = Color.parseColor("#212121"); textSize = 44f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); textAlign = Paint.Align.LEFT }
+            // Üst kart içerik
+            val labelPaint = Paint().apply {
+                color = Color.parseColor("#757575")
+                textSize = 40f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                textAlign = Paint.Align.LEFT
+            }
+            val valuePaint = Paint().apply {
+                color = Color.parseColor("#212121")
+                textSize = 44f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.LEFT
+            }
             var y = 290f
-            canvas.drawText("NET MAAŞ", 140f, y, labelPaint); y += 50f
-            canvas.drawText("${formatMoney(data.salary)} TL", 140f, y, valuePaint); y += 70f
-            canvas.drawText("HESAPLAMA YÖNTEMI", 140f, y, labelPaint); y += 50f
-            canvas.drawText("${data.method} saat", 140f, y, valuePaint); y += 70f
-            canvas.drawText("FAZLA MESAİ TÜRÜ", 140f, y, labelPaint); y += 50f
-            canvas.drawText("${data.type.percentage} - ${data.type.name}", 140f, y, valuePaint); y += 50f
+            canvas.drawText("NET MAAŞ", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${formatMoney(data.salary)} TL", 140f, y, valuePaint)
+            y += 70f
+            canvas.drawText("HESAPLAMA YÖNTEMI", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${data.method} saat", 140f, y, valuePaint)
+            y += 70f
+            canvas.drawText("FAZLA MESAİ TÜRÜ", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${data.type.percentage} - ${data.type.name}", 140f, y, valuePaint)
+            y += 50f
             canvas.drawText("İş Kanunu ${data.type.law}", 140f, y, labelPaint)
+            // Alt kart içerik
             y = 810f
-            canvas.drawText("BİRİM ÜCRET", 140f, y, labelPaint); y += 50f
-            canvas.drawText("${formatMoney(data.baseRate)} TL / saat", 140f, y, valuePaint); y += 80f
-            canvas.drawText("SAATLIK ÜCRET", 140f, y, labelPaint); y += 50f
-            val saatlikPaint = Paint().apply { color = Color.parseColor("#1976D2"); textSize = 56f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); textAlign = Paint.Align.LEFT }
-            canvas.drawText("${formatMoney(data.overtimeRate)} TL / saat", 140f, y, saatlikPaint); y += 80f
-            canvas.drawText("${if (data.isExampleHours) "ÖRNEK" else "TOPLAM"} (${data.hours.toInt()} SAAT)", 140f, y, labelPaint); y += 55f
-            val totalPaint = Paint().apply { color = Color.parseColor("#0D47A1"); textSize = 64f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); textAlign = Paint.Align.LEFT }
+            canvas.drawText("BİRİM ÜCRET", 140f, y, labelPaint)
+            y += 50f
+            canvas.drawText("${formatMoney(data.baseRate)} TL / saat", 140f, y, valuePaint)
+            y += 80f
+            canvas.drawText("SAATLIK ÜCRET", 140f, y, labelPaint)
+            y += 50f
+            val saatlikPaint = Paint().apply {
+                color = Color.parseColor("#1976D2")
+                textSize = 56f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.LEFT
+            }
+            canvas.drawText("${formatMoney(data.overtimeRate)} TL / saat", 140f, y, saatlikPaint)
+            y += 80f
+            canvas.drawText("${if (data.isExampleHours) "ÖRNEK" else "TOPLAM"} (${data.hours.toInt()} SAAT)", 140f, y, labelPaint)
+            y += 55f
+            val totalPaint = Paint().apply {
+                color = Color.parseColor("#0D47A1")
+                textSize = 64f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.LEFT
+            }
             canvas.drawText("${formatMoney(data.totalAmount)} TL", 140f, y, totalPaint)
-            val footerPaint = Paint().apply { color = Color.WHITE; textSize = 38f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); textAlign = Paint.Align.CENTER }
-            canvas.drawText("Blue Chip Finance", 540f, 1260f, footerPaint)
-            val footerPaint2 = Paint().apply { color = Color.parseColor("#BBDEFB"); textSize = 32f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL); textAlign = Paint.Align.CENTER }
+            // Footer
+            val footerPaint = Paint().apply {
+                color = Color.WHITE
+                textSize = 38f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = Paint.Align.CENTER
+            }
+            canvas.drawText("📱 Blue Chip Finance", 540f, 1260f, footerPaint)
+            val footerPaint2 = Paint().apply {
+                color = Color.parseColor("#BBDEFB")
+                textSize = 32f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                textAlign = Paint.Align.CENTER
+            }
             canvas.drawText("play.google.com/store/apps/details?id=com.bluechip.finance", 540f, 1305f, footerPaint2)
+            // Dosyaya kaydet
             val file = File(requireContext().cacheDir, "fazla_mesai_${System.currentTimeMillis()}.png")
             val fos = FileOutputStream(file)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
