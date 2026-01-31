@@ -70,6 +70,8 @@ class OvertimeFragment : Fragment() {
         if (isDark) {
             val trackColor = ColorStateList.valueOf(Color.parseColor("#616161"))
             val thumbColor = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
+            val trackColor = ColorStateList.valueOf(Color.parseColor("#616161"))
+            val thumbColor = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
             methodSwitch.trackTintList = trackColor
             methodSwitch.thumbTintList = thumbColor
         }
