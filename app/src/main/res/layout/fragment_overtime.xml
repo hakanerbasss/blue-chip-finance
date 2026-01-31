@@ -85,7 +85,7 @@
                 android:layout_marginEnd="10dp"
                 android:text="225 saat"
                 android:textSize="14sp"
-                android:textColor="?android:textColorPrimary"/>
+                android:textColor="#212121"/>
             <Switch
                 android:id="@+id/method_switch"
                 android:layout_width="wrap_content"

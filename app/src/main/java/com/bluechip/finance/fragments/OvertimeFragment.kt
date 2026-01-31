@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.graphics.drawable.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -57,7 +56,6 @@ class OvertimeFragment : Fragment() {
         setupSpinner()
         setupListeners()
         setupInfoIcon()
-        setupSwitchColors()
         return view
     }
     private fun setupInfoIcon() {
@@ -66,14 +64,6 @@ class OvertimeFragment : Fragment() {
             android.graphics.PorterDuff.Mode.SRC_IN
         )
         infoButton.drawable?.colorFilter = colorFilter
-    }
-    private fun setupSwitchColors() {
-        val ctx = requireContext()
-        val isDark = ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        if (isDark) {
-            methodSwitch.trackTintList = ColorStateList.valueOf(Color.parseColor("#616161"))
-            methodSwitch.thumbTintList = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
-        }
     }
     private fun setupSpinner() {
         val adapter = ArrayAdapter(
