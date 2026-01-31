@@ -20,9 +20,9 @@ import java.io.FileOutputStream
 class OvertimeFragment : Fragment() {
     private lateinit var salaryInput: EditText
     private lateinit var hoursInput: EditText
-    private lateinit var radio225: RadioButton
-    private lateinit var radio226: RadioButton
-    private lateinit var typeSpinner: Spinner
+    private lateinit var typeButton: Button
+    
+    
     private lateinit var calculateButton: Button
     private lateinit var resetButton: Button
     private lateinit var resultCard: View
@@ -30,7 +30,7 @@ class OvertimeFragment : Fragment() {
     private lateinit var shareButton: Button
     private lateinit var infoButton: ImageButton
     private lateinit var scrollView: ScrollView
-    private var calculationMethod = 225
+    private val calculationMethod = 225
     private var lastCalculatedData: CalculationData? = null
     private val overtimeTypes = arrayOf(
         OvertimeType("%25", "Gece Çalışması", 1.25, "Mad. 69", "20:00-06:00 arası gece çalışması"),
@@ -44,16 +44,13 @@ class OvertimeFragment : Fragment() {
         scrollView = view.findViewById(R.id.scroll_view)
         salaryInput = view.findViewById(R.id.salary_input)
         hoursInput = view.findViewById(R.id.hours_input)
-        radio225 = view.findViewById(R.id.radio_225)
-        radio226 = view.findViewById(R.id.radio_226)
-        typeSpinner = view.findViewById(R.id.type_spinner)
+        typeButton = view.findViewById(R.id.type_button)
         calculateButton = view.findViewById(R.id.calculate_button)
         resetButton = view.findViewById(R.id.reset_button)
         resultCard = view.findViewById(R.id.result_card)
         resultText = view.findViewById(R.id.result_text)
         shareButton = view.findViewById(R.id.share_button)
         infoButton = view.findViewById(R.id.info_button)
-        setupSpinner()
         setupListeners()
         setupInfoIcon()
         return view
@@ -65,43 +62,32 @@ class OvertimeFragment : Fragment() {
         )
         infoButton.drawable?.colorFilter = colorFilter
     }
-    private fun setupSpinner() {
         val adapter = object : ArrayAdapter<String>(
             requireContext(),
             R.layout.spinner_item,
-            overtimeTypes.map { "${it.percentage} - ${it.name}" }
-        ) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(Color.WHITE)
-                return view
-            }
-        }
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-        typeSpinner.adapter = adapter
-        typeSpinner.setSelection(1)
-    }
     private fun setupListeners() {
-        radio225.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                calculationMethod = 225
-                radio226.isChecked = false
-                if (resultCard.visibility == View.VISIBLE) { calculate() }
-            }
-        }
-        radio226.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                calculationMethod = 226
-                radio225.isChecked = false
-                if (resultCard.visibility == View.VISIBLE) { calculate() }
-            }
-        }
+        typeButton.setOnClickListener { showTypeDialog() }
         calculateButton.setOnClickListener { calculate() }
         resetButton.setOnClickListener { reset() }
         shareButton.setOnClickListener { shareResult() }
         infoButton.setOnClickListener { showInfo() }
     }
-    private fun calculate() {
+    
+    private fun showTypeDialog() {
+        val types = overtimeTypes.map { "${it.percentage} - ${it.name}" }.toTypedArray()
+        val currentIndex = overtimeTypes.indexOfFirst { "${it.percentage} - ${it.name}" == typeButton.text.toString() }
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle("Fazla Mesai Türü Seçin")
+            .setSingleChoiceItems(types, currentIndex) { dialog, which ->
+                val selected = overtimeTypes[which]
+                typeButton.text = "${selected.percentage} - ${selected.name}"
+                if (resultCard.visibility == View.VISIBLE) { calculate() }
+                dialog.dismiss()
+            }
+            .setNegativeButton("İptal", null)
+            .show()
+    }
         val salaryText = salaryInput.text.toString()
         if (salaryText.isEmpty()) {
             Toast.makeText(context, "Lutfen net maas giriniz", Toast.LENGTH_SHORT).show()
@@ -112,7 +98,7 @@ class OvertimeFragment : Fragment() {
             Toast.makeText(context, "Gecerli bir net maas giriniz", Toast.LENGTH_SHORT).show()
             return
         }
-        val selectedType = overtimeTypes[typeSpinner.selectedItemPosition]
+        val selectedType = overtimeTypes.first { "${it.percentage} - ${it.name}" == typeButton.text.toString() }
         val baseRate = salary / calculationMethod
         val overtimeRate = baseRate * selectedType.multiplier
         val hoursText = hoursInput.text.toString()
@@ -135,6 +121,7 @@ class OvertimeFragment : Fragment() {
         r.append("💵  Birim Ucret\n")
         r.append("    ${formatMoney(data.baseRate)} TL / saat\n\n")
         r.append("📌  ${data.type.percentage} - ${data.type.name}\n")
+        typeButton.text = "%50 - Fazla Çalışma"
         r.append("    İş Kanunu ${data.type.law}\n")
         r.append("    ${data.type.description}\n\n")
         if (data.type.percentage == "%75") {
@@ -164,10 +151,7 @@ class OvertimeFragment : Fragment() {
     private fun reset() {
         salaryInput.text?.clear()
         hoursInput.text?.clear()
-        radio225.isChecked = true
-        radio226.isChecked = false
         calculationMethod = 225
-        typeSpinner.setSelection(1)
         resultCard.visibility = View.GONE
         lastCalculatedData = null
     }

@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Saatlik fazla mesai ucretinizi hesaplayın"
+            android:text="Saatlik fazla mesai ücretinizi hesaplayın (225 saat)"
             android:textSize="14sp"
             android:alpha="0.6"/>
         <com.google.android.material.textfield.TextInputLayout
@@ -63,32 +63,6 @@
                 android:inputType="numberDecimal"
                 android:textSize="17sp"/>
         </com.google.android.material.textfield.TextInputLayout>
-        <RadioGroup
-            android:id="@+id/method_radio_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:padding="14dp"
-            android:background="@android:drawable/dialog_holo_light_frame">
-            <RadioButton
-                android:id="@+id/radio_225"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="225 saat"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:checked="true"/>
-            <RadioButton
-                android:id="@+id/radio_226"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="226 saat"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"/>
-        </RadioGroup>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,14 +75,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/type_spinner"
+            <Button
+                android:id="@+id/type_button"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="10dp"
-                android:padding="12dp"
-                android:background="@drawable/spinner_background"/>
+                android:text="%50 - Fazla Çalışma"
+                android:textSize="14sp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
             <Button
                 android:id="@+id/calculate_button"
                 android:layout_width="wrap_content"
@@ -126,16 +101,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="TEMİZLE"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Seçim değişince sonuç otomatik güncellenir"
-            android:textSize="12sp"
-            android:textStyle="italic"
-            android:alpha="0.6"/>
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/result_card"
             android:layout_width="match_parent"
@@ -150,21 +117,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp">
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Hesap Sonucu"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#1976D2"/>
-                </LinearLayout>
+                    android:text="Hesap Sonucu"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1976D2"
+                    android:layout_marginBottom="12dp"/>
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
