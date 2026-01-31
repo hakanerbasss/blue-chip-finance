@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_calculator"
+        android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_menu_compass"
-        android:title="Hesap Makinesi"/>
+        android:title="Ana Sayfa"/>
     <item
         android:id="@+id/nav_overtime"
         android:icon="@android:drawable/ic_menu_recent_history"
         android:title="Fazla Mesai"/>
     <item
-        android:id="@+id/nav_leave"
-        android:icon="@android:drawable/ic_menu_today"
-        android:title="Yillik Izin"/>
-    <item
-        android:id="@+id/nav_notice"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="Ihbar Suresi"/>
-    <item
-        android:id="@+id/nav_compensation"
-        android:icon="@android:drawable/ic_menu_gallery"
-        android:title="Tazminat"/>
+        android:id="@+id/nav_share"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="Paylaş"/>
 </menu>
