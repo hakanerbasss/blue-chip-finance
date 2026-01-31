@@ -5,13 +5,13 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.graphics.drawable.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import android.graphics.drawable.ColorStateList
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -68,9 +68,7 @@ class OvertimeFragment : Fragment() {
         val context = requireContext()
         val isDark = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
         if (isDark) {
-            val trackColor = android.graphics.drawable.ColorStateList.valueOf(Color.parseColor("#616161"))
             methodSwitch.trackTintList = trackColor
-            val thumbColor = android.graphics.drawable.ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
             methodSwitch.thumbTintList = thumbColor
         }
     }
