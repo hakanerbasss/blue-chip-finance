@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener {
-            navigateToAnnualLeave()
+            Toast.makeText(context, "navigateToAnnualLeave()", Toast.LENGTH_SHORT).show()
         }
         
         btnRefresh.setOnClickListener {
@@ -84,12 +84,6 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToOvertime() {
-        val fragment = OvertimeFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
     
     private fun navigateToSeverance() {
         val fragment = SeveranceFragment()
@@ -101,6 +95,19 @@ class HomeFragment : Fragment() {
     
     private fun navigateToAnnualLeave() {
         val fragment = AnnualLeaveFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+    private fun navigateToAnnualLeave() {
+        val fragment = AnnualLeaveFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+        val fragment = SeveranceFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
