@@ -175,6 +175,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="SONUÇ"
+                    android:textColor="#212121"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:gravity="center"
@@ -182,6 +183,7 @@
                 
                 <TextView
                     android:id="@+id/result_duration"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Çalışma Süresi: -"
@@ -193,12 +195,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="🎁 KIDEM TAZMİNATI"
+                    android:textColor="#212121"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"/>
                 
                 <TextView
                     android:id="@+id/result_severance_gross"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Brüt Kıdem: -"
@@ -207,6 +211,7 @@
                 
                 <TextView
                     android:id="@+id/result_severance_tax"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Damga Vergisi: - (%0.759)"
@@ -227,12 +232,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="⚖️ İHBAR TAZMİNATI"
+                    android:textColor="#212121"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"/>
                 
                 <TextView
                     android:id="@+id/result_notice_period"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="İhbar Süresi: -"
@@ -241,6 +248,7 @@
                 
                 <TextView
                     android:id="@+id/result_notice_gross"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Brüt İhbar: -"
@@ -249,6 +257,7 @@
                 
                 <TextView
                     android:id="@+id/result_notice_tax"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Damga Vergisi: - (%0.759)"
@@ -284,6 +293,7 @@
                 
                 <TextView
                     android:id="@+id/result_info"
+                    android:textColor="#212121"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
