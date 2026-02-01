@@ -37,7 +37,7 @@ class HomeFragment : Fragment() {
     private var btcUSD = 64200.0
     private var ethUSD = 3100.0
     private var isTL = true
-
+    
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         
@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener {
-            Toast.makeText(context, "navigateToSeverance()", Toast.LENGTH_SHORT).show()
+            navigateToSeverance()
         }
         
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener {
@@ -84,15 +84,15 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToOvertime() {
-    
-    private fun navigateToSeverance() {
-        val fragment = SeveranceFragment()
+        val fragment = OvertimeFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }
-        val fragment = OvertimeFragment()
+    
+    private fun navigateToSeverance() {
+        val fragment = SeveranceFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
@@ -104,7 +104,6 @@ class HomeFragment : Fragment() {
             try {
                 btnRefresh.isEnabled = false
                 
-                // TCMB API
                 val tcmbData = withContext(Dispatchers.IO) {
                     try {
                         URL("https://www.tcmb.gov.tr/kurlar/today.xml").readText()
@@ -117,7 +116,6 @@ class HomeFragment : Fragment() {
                     parseTCMBData(tcmbData)
                 }
                 
-                // CoinGecko API
                 val cryptoData = withContext(Dispatchers.IO) {
                     try {
                         URL("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether-gold&vs_currencies=usd").readText()
