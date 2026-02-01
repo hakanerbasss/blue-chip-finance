@@ -98,6 +98,7 @@
             android:inputType="numberDecimal"
             android:padding="12dp"
             android:background="@android:drawable/edit_text"
+            android:textColor="?android:textColorPrimary"
             android:layout_marginBottom="16dp"/>
         
         <TextView
@@ -163,7 +164,7 @@
             android:visibility="gone"
             app:cardElevation="16dp"
             app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="#F5F5F5">
+            app:cardBackgroundColor="?attr/colorSurface">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
