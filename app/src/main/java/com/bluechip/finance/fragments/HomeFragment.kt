@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener {
-            Toast.makeText(context, "Yıllık izin modülü yakında eklenecek", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "navigateToAnnualLeave()", Toast.LENGTH_SHORT).show()
         }
         
         btnRefresh.setOnClickListener {
@@ -92,6 +92,14 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToSeverance() {
+    
+    private fun navigateToAnnualLeave() {
+        val fragment = AnnualLeaveFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
         val fragment = SeveranceFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
