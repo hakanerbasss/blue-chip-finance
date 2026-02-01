@@ -90,6 +90,7 @@
         </LinearLayout>
         
         <EditText
+            android:textColor="?android:textColorPrimary"
             android:id="@+id/input_salary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener {
-            Toast.makeText(context, "Kıdem modülü yakında eklenecek", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Yıllık izin modülü yakında eklenecek", Toast.LENGTH_SHORT).show()
         }
         
         btnRefresh.setOnClickListener {
