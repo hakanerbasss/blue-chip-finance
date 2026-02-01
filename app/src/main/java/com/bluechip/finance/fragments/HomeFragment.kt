@@ -92,15 +92,15 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToSeverance() {
-    
-    private fun navigateToAnnualLeave() {
-        val fragment = AnnualLeaveFragment()
+        val fragment = SeveranceFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }
-        val fragment = SeveranceFragment()
+    
+    private fun navigateToAnnualLeave() {
+        val fragment = AnnualLeaveFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
