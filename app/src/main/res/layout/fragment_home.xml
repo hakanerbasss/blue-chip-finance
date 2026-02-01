@@ -17,6 +17,7 @@
             android:text="HESAPLAMA ARAÇLARI"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:textColor="#212121"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp"/>
         
@@ -39,7 +40,8 @@
                     android:layout_weight="1"
                     android:text="💰 Fazla Mesai"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -68,7 +70,8 @@
                     android:layout_weight="1"
                     android:text="📊 AGİ Hesaplama"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -97,7 +100,8 @@
                     android:layout_weight="1"
                     android:text="💳 Vergi Dilimi"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -126,7 +130,8 @@
                     android:layout_weight="1"
                     android:text="🎁 Kıdem Tazminatı"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -149,7 +154,8 @@
                 android:layout_weight="1"
                 android:text="📈 PİYASA FİYATLARI"
                 android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="#212121"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -160,6 +166,7 @@
                     android:layout_height="wrap_content"
                     android:text="TL"
                     android:textSize="12sp"
+                    android:textColor="#212121"
                     android:layout_marginEnd="8dp"/>
                 <Switch
                     android:id="@+id/currency_switch"
@@ -170,6 +177,7 @@
                     android:layout_height="wrap_content"
                     android:text="USD"
                     android:textSize="12sp"
+                    android:textColor="#212121"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
         </LinearLayout>
@@ -178,9 +186,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardElevation="4dp"
+            app:cardElevation="8dp"
             app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="#F5F5F5">
+            app:cardBackgroundColor="#FFFFFF">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -198,14 +206,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="💵 Dolar"
-                        android:textSize="15sp"/>
+                        android:textSize="15sp"
+                        android:textColor="#212121"/>
                     <TextView
                         android:id="@+id/price_usd"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Yükleniyor..."
                         android:textSize="15sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
                 </LinearLayout>
                 
                 <LinearLayout
@@ -219,14 +229,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="💶 Euro"
-                        android:textSize="15sp"/>
+                        android:textSize="15sp"
+                        android:textColor="#212121"/>
                     <TextView
                         android:id="@+id/price_eur"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Yükleniyor..."
                         android:textSize="15sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
                 </LinearLayout>
                 
                 <LinearLayout
@@ -239,46 +251,17 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="🪙 Altın (gr)"
-                        android:textSize="15sp"/>
+                        android:text="🪙 Altın (ons)"
+                        android:textSize="15sp"
+                        android:textColor="#212121"/>
                     <TextView
                         android:id="@+id/price_gold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Yükleniyor..."
                         android:textSize="15sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-                
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:gravity="center_vertical">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🥈 Gümüş (gr)"
-                        android:textSize="15sp"/>
-                    <TextView
-                        android:id="@+id/price_silver"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Yükleniyor..."
-                        android:textSize="15sp"
                         android:textStyle="bold"
-                        android:layout_marginEnd="8dp"/>
-                    <TextView
-                        android:id="@+id/silver_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ⓘ"
-                        android:textSize="16sp"
-                        android:textColor="#1976D2"
-                        android:textStyle="bold"/>
+                        android:textColor="#212121"/>
                 </LinearLayout>
                 
                 <LinearLayout
@@ -292,14 +275,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="₿ Bitcoin"
-                        android:textSize="15sp"/>
+                        android:textSize="15sp"
+                        android:textColor="#212121"/>
                     <TextView
                         android:id="@+id/price_btc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Yükleniyor..."
                         android:textSize="15sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
                 </LinearLayout>
                 
                 <LinearLayout
@@ -313,14 +298,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="⟠ Ethereum"
-                        android:textSize="15sp"/>
+                        android:textSize="15sp"
+                        android:textColor="#212121"/>
                     <TextView
                         android:id="@+id/price_eth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Yükleniyor..."
                         android:textSize="15sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="#212121"/>
                 </LinearLayout>
                 
                 <View
@@ -342,7 +329,7 @@
                         android:layout_weight="1"
                         android:text="Son güncelleme: --:--"
                         android:textSize="12sp"
-                        android:alpha="0.6"/>
+                        android:textColor="#757575"/>
                     <Button
                         android:id="@+id/btn_refresh_prices"
                         android:layout_width="wrap_content"
@@ -354,13 +341,14 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
         
-        <!-- İŞÇİ HABERLERİ -->
+        <!-- HABERLER -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📰 İŞÇİ HABERLERİ"
+            android:text="📰 HABERLER"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:textColor="#212121"
             android:layout_marginBottom="12dp"/>
         
         <com.google.android.material.card.MaterialCardView
@@ -368,8 +356,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             app:cardElevation="4dp"
-            app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="#F5F5F5">
+            app:cardCornerRadius="12dp">
             <LinearLayout
                 android:id="@+id/news_container"
                 android:layout_width="match_parent"
@@ -382,7 +369,7 @@
                     android:layout_height="wrap_content"
                     android:text="Haberler yükleniyor..."
                     android:textSize="14sp"
-                    android:alpha="0.6"
+                    android:textColor="#757575"
                     android:gravity="center"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
