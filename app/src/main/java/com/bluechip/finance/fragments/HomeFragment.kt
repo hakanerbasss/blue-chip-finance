@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener {
-            Toast.makeText(context, "AGİ modülü yakında eklenecek", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "navigateToSeverance()", Toast.LENGTH_SHORT).show()
         }
         
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener {
@@ -84,6 +84,14 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToOvertime() {
+    
+    private fun navigateToSeverance() {
+        val fragment = SeveranceFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
         val fragment = OvertimeFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
