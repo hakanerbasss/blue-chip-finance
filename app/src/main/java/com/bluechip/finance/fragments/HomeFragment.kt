@@ -51,7 +51,6 @@ class HomeFragment : Fragment() {
         newsContainer = view.findViewById(R.id.news_container)
         currencySwitch = view.findViewById(R.id.currency_switch)
         
-        // Modül kartları
         view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener {
             navigateToOvertime()
         }
@@ -97,7 +96,7 @@ class HomeFragment : Fragment() {
             try {
                 btnRefresh.isEnabled = false
                 
-                // TCMB API (Dolar, Euro)
+                // TCMB API
                 val tcmbData = withContext(Dispatchers.IO) {
                     try {
                         URL("https://www.tcmb.gov.tr/kurlar/today.xml").readText()
@@ -110,7 +109,7 @@ class HomeFragment : Fragment() {
                     parseTCMBData(tcmbData)
                 }
                 
-                // CoinGecko API (Altın, BTC, ETH)
+                // CoinGecko API
                 val cryptoData = withContext(Dispatchers.IO) {
                     try {
                         URL("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether-gold&vs_currencies=usd").readText()
@@ -177,59 +176,71 @@ class HomeFragment : Fragment() {
             
             val news = withContext(Dispatchers.IO) {
                 try {
-                    val url = "https://newsapi.org/v2/top-headlines?country=tr&category=business&apiKey=bc7b44a1f4844c018557d4945800d61c"
-                    val response = URL(url).readText()
-                    val json = JSONObject(response)
-                    val articles = json.getJSONArray("articles")
+                    val url = "https://news.google.com/rss/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNRGx6TVdZU0JYUnlMVlJTR2dKVVVpZ0FQAQ?hl=tr&gl=TR&ceid=TR:tr"
+                    val rss = URL(url).readText()
                     
                     val newsList = mutableListOf<NewsItem>()
-                    for (i in 0 until minOf(5, articles.length())) {
-                        val article = articles.getJSONObject(i)
-                        val title = article.getString("title")
-                        val url = article.getString("url")
-                        val publishedAt = article.getString("publishedAt")
+                    val itemMatches = Regex("<item>.*?</item>", RegexOption.DOT_MATCHES_ALL).findAll(rss)
+                    
+                    itemMatches.take(3).forEach { match ->
+                        val itemXml = match.value
+                        val titleMatch = Regex("<title><!\\[CDATA\\[(.+?)\\]\\]></title>").find(itemXml)
+                        val linkMatch = Regex("<link>(.+?)</link>").find(itemXml)
+                        val pubDateMatch = Regex("<pubDate>(.+?)</pubDate>").find(itemXml)
                         
-                        val time = try {
-                            val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-                            val date = parser.parse(publishedAt)
-                            val now = Date()
-                            val diff = (now.time - date.time) / 1000 / 60
-                            when {
-                                diff < 60 -> "${diff.toInt()} dakika önce"
-                                diff < 1440 -> "${(diff / 60).toInt()} saat önce"
-                                else -> "${(diff / 1440).toInt()} gün önce"
+                        if (titleMatch != null && linkMatch != null) {
+                            val title = titleMatch.groupValues[1]
+                            val link = linkMatch.groupValues[1]
+                            
+                            val time = try {
+                                val pubDate = pubDateMatch?.groupValues?.get(1) ?: ""
+                                val parser = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
+                                val date = parser.parse(pubDate)
+                                val now = Date()
+                                val diff = (now.time - date.time) / 1000 / 60
+                                when {
+                                    diff < 60 -> "${diff.toInt()} dakika önce"
+                                    diff < 1440 -> "${(diff / 60).toInt()} saat önce"
+                                    else -> "${(diff / 1440).toInt()} gün önce"
+                                }
+                            } catch (e: Exception) {
+                                "Bugün"
                             }
-                        } catch (e: Exception) {
-                            "Bugün"
+                            
+                            newsList.add(NewsItem(title, link, time))
                         }
-                        
-                        newsList.add(NewsItem(title, url, time))
                     }
                     newsList
                 } catch (e: Exception) {
-                    listOf(
-                        NewsItem("Haberler yüklenemedi", "", ""),
-                        NewsItem("İnternet bağlantınızı kontrol edin", "", "")
-                    )
+                    listOf(NewsItem("Haberler yüklenemedi", "", "İnternet bağlantınızı kontrol edin"))
                 }
             }
             
-            news.forEach { item ->
-                val itemView = layoutInflater.inflate(R.layout.news_item, newsContainer, false)
-                itemView.findViewById<TextView>(R.id.news_title).text = item.title
-                itemView.findViewById<TextView>(R.id.news_time).text = item.time
-                if (item.url.isNotEmpty()) {
-                    itemView.setOnClickListener {
-                        showNewsDialog(item.title, item.url)
-                    }
+            if (news.isEmpty()) {
+                val emptyText = TextView(context).apply {
+                    text = "Haberler yüklenemedi"
+                    textSize = 14f
+                    setTextColor(context.getColor(android.R.color.darker_gray))
                 }
-                newsContainer.addView(itemView)
+                newsContainer.addView(emptyText)
+            } else {
+                news.forEach { item ->
+                    val itemView = layoutInflater.inflate(R.layout.news_item, newsContainer, false)
+                    itemView.findViewById<TextView>(R.id.news_title).text = item.title
+                    itemView.findViewById<TextView>(R.id.news_time).text = item.time
+                    if (item.url.isNotEmpty()) {
+                        itemView.setOnClickListener {
+                            showNewsDialog(item.title, item.url)
+                        }
+                    }
+                    newsContainer.addView(itemView)
+                }
             }
             
             val moreBtn = Button(context).apply {
                 text = "DAHA FAZLA HABER →"
                 setOnClickListener {
-                    showNewsDialog("Ekonomi Haberleri", "https://news.google.com/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNRGx6TVdZU0JYUnlMVlJTR2dKVVVpZ0FQAQ?hl=tr&gl=TR&ceid=TR%3Atr")
+                    showNewsDialog("Ekonomi Haberleri", "https://news.google.com/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNRGx6TVdZU0JYUnlMVlJTR2dKVVVpZ0FQAQ?hl=tr&gl=TR&ceid=TR:tr")
                 }
             }
             newsContainer.addView(moreBtn)

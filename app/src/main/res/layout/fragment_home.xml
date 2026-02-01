@@ -17,7 +17,7 @@
             android:text="HESAPLAMA ARAÇLARI"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="#212121"
+            android:textColor="?android:textColorPrimary"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp"/>
         
@@ -41,7 +41,7 @@
                     android:text="💰 Fazla Mesai"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#212121"/>
+                    android:textColor="?android:textColorPrimary"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
                     android:text="📊 AGİ Hesaplama"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#212121"/>
+                    android:textColor="?android:textColorPrimary"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
                     android:text="💳 Vergi Dilimi"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#212121"/>
+                    android:textColor="?android:textColorPrimary"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
                     android:text="🎁 Kıdem Tazminatı"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#212121"/>
+                    android:textColor="?android:textColorPrimary"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
                 android:text="📈 PİYASA FİYATLARI"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#212121"/>
+                android:textColor="?android:textColorPrimary"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -166,7 +166,7 @@
                     android:layout_height="wrap_content"
                     android:text="TL"
                     android:textSize="12sp"
-                    android:textColor="#212121"
+                    android:textColor="?android:textColorPrimary"
                     android:layout_marginEnd="8dp"/>
                 <Switch
                     android:id="@+id/currency_switch"
@@ -177,7 +177,7 @@
                     android:layout_height="wrap_content"
                     android:text="USD"
                     android:textSize="12sp"
-                    android:textColor="#212121"
+                    android:textColor="?android:textColorPrimary"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
         </LinearLayout>
@@ -348,7 +348,7 @@
             android:text="📰 HABERLER"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="#212121"
+            android:textColor="?android:textColorPrimary"
             android:layout_marginBottom="12dp"/>
         
         <com.google.android.material.card.MaterialCardView
@@ -369,7 +369,7 @@
                     android:layout_height="wrap_content"
                     android:text="Haberler yükleniyor..."
                     android:textSize="14sp"
-                    android:textColor="#757575"
+                    android:textColor="?android:textColorSecondary"
                     android:gravity="center"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
