@@ -91,6 +91,7 @@
         
         <EditText
             android:textColor="#212121"
+            android:textColorHint="#757575"
             android:id="@+id/input_salary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
