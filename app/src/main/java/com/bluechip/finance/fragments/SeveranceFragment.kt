@@ -2,6 +2,13 @@ package com.bluechip.finance.fragments
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.URL
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -40,14 +47,18 @@ class SeveranceFragment : Fragment() {
     private lateinit var resultTotal: TextView
     private lateinit var resultInfo: TextView
     private lateinit var btnShare: Button
+    private lateinit var refreshIcon: TextView
+    private lateinit var updateStatus: TextView
+    private lateinit var warningText: TextView
     
     private var startDate: Calendar? = null
     private var endDate: Calendar? = null
     private var noticeGiven = false
     private val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     
-    private val TAVAN_2026 = 64948.77
-    private val DAMGA_VERGISI = 0.00759
+    private var severanceCeiling = 64948.77
+    private var stampTaxRate = 0.00759
+    private var lastUpdate = "2026-02-02"
     
     private val reasons = listOf(
         "İşveren Feshi",
@@ -84,6 +95,13 @@ class SeveranceFragment : Fragment() {
         resultTotal = view.findViewById(R.id.result_total)
         resultInfo = view.findViewById(R.id.result_info)
         btnShare = view.findViewById(R.id.btn_share)
+        refreshIcon = view.findViewById(R.id.refresh_icon)
+        updateStatus = view.findViewById(R.id.update_status)
+        warningText = view.findViewById(R.id.warning_text)
+
+        // JSON parametrelerini yükle
+        loadParameters()
+        fetchParameters()
         
         setupListeners()
         
@@ -96,6 +114,10 @@ class SeveranceFragment : Fragment() {
         btnReason.setOnClickListener { showReasonDialog() }
         btnNotice.setOnClickListener { showNoticeDialog() }
         infoIcon.setOnClickListener { showInfoDialog() }
+        refreshIcon.setOnClickListener {
+            fetchParameters()
+            Toast.makeText(requireContext(), "Parametreler güncelleniyor...", Toast.LENGTH_SHORT).show()
+        }
         salaryInfo.setOnClickListener { showSalaryInfoDialog() }
         btnCalculate.setOnClickListener {
             hideKeyboard()
@@ -163,8 +185,8 @@ class SeveranceFragment : Fragment() {
                 
                 HESAPLAMA:
                 • Her tam yıl için 30 günlük brüt ücret
-                • Tavan: 64.948,77₺ (2026)
-                • Kesinti: Damga vergisi (%0.759)
+                • Tavan: ${String.format("%,.2f", severanceCeiling)}₺ (${lastUpdate.substring(0,4)})
+                • Kesinti: Damga vergisi (%${String.format("%.3f", stampTaxRate * 100)})
                 
                 ⚖️ İHBAR TAZMİNATI (İş Kanunu Mad. 17):
                 İşten çıkarken önceden bildirim (ihbar) verilmezse ödenir.
@@ -178,7 +200,7 @@ class SeveranceFragment : Fragment() {
                 HESAPLAMA:
                 • İhbar süresi × Günlük brüt maaş
                 • Tavan yok
-                • Kesinti: Damga vergisi (%0.759)
+                • Kesinti: Damga vergisi (%${String.format("%.3f", stampTaxRate * 100)})
             """.trimIndent())
             .setPositiveButton("Tamam", null)
             .show()
@@ -251,9 +273,9 @@ class SeveranceFragment : Fragment() {
         var severanceNet = 0.0
         
         if (severanceEligible) {
-            val yearlyAmount = minOf(salary, TAVAN_2026)
+            val yearlyAmount = minOf(salary, severanceCeiling)
             severanceGross = yearlyAmount * (totalDays / 365.0)
-            severanceTax = severanceGross * DAMGA_VERGISI
+            severanceTax = severanceGross * stampTaxRate
             severanceNet = severanceGross - severanceTax
         }
         
@@ -275,7 +297,7 @@ class SeveranceFragment : Fragment() {
         if (!noticeGiven) {
             val dailySalary = salary / 30
             noticeGross = dailySalary * noticeDays
-            noticeTax = noticeGross * DAMGA_VERGISI
+            noticeTax = noticeGross * stampTaxRate
             noticeNet = noticeGross - noticeTax
         }
         
@@ -295,8 +317,8 @@ class SeveranceFragment : Fragment() {
         val infoText = buildString {
             if (!severanceEligible) {
                 append("⚠️ $reason durumunda kıdem tazminatı hakkı yoktur.\n")
-            } else if (salary > TAVAN_2026) {
-                append("ℹ️ Maaş tavandan yüksek, kıdem tavan (${formatMoney(TAVAN_2026)}₺) üzerinden hesaplandı.\n")
+            } else if (salary > severanceCeiling) {
+                append("ℹ️ Maaş tavandan yüksek, kıdem tavan (${formatMoney(severanceCeiling)}₺) üzerinden hesaplandı.\n")
             }
             if (noticeGiven) {
                 append("✓ İhbar verildiği için ihbar tazminatı yok.")
@@ -357,5 +379,58 @@ class SeveranceFragment : Fragment() {
     
     private fun formatMoney(amount: Double): String {
         return String.format("%,.2f", amount).replace(',', 'X').replace('.', ',').replace('X', '.')
+    }
+
+    private fun loadParameters() {
+        val prefs = requireContext().getSharedPreferences("work_params", Context.MODE_PRIVATE)
+        severanceCeiling = prefs.getFloat("severance_ceiling", 64948.77f).toDouble()
+        stampTaxRate = prefs.getFloat("stamp_tax_rate", 0.00759f).toDouble()
+        lastUpdate = prefs.getString("last_update", "2026-02-02") ?: "2026-02-02"
+        updateStatusText(true)
+    }
+
+    private fun fetchParameters() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val url = URL("https://raw.githubusercontent.com/hakanerbasss/blue-chip-finance/main/tax_parameters.json")
+                val json = url.readText()
+                val jsonObject = JSONObject(json)
+
+                val newCeiling = jsonObject.getDouble("severance_ceiling")
+                val newStampTax = jsonObject.getDouble("stamp_tax_rate")
+                val newUpdate = jsonObject.getString("last_update")
+
+                withContext(Dispatchers.Main) {
+                    severanceCeiling = newCeiling
+                    stampTaxRate = newStampTax
+                    lastUpdate = newUpdate
+
+                    val prefs = requireContext().getSharedPreferences("work_params", Context.MODE_PRIVATE)
+                    prefs.edit()
+                        .putFloat("severance_ceiling", newCeiling.toFloat())
+                        .putFloat("stamp_tax_rate", newStampTax.toFloat())
+                        .putString("last_update", newUpdate)
+                        .apply()
+
+                    updateStatusText(true)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    updateStatusText(false)
+                }
+            }
+        }
+    }
+
+    private fun updateStatusText(online: Boolean) {
+        if (online) {
+            updateStatus.text = "📅 Son güncelleme: $lastUpdate"
+            updateStatus.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+            updateStatus.visibility = View.VISIBLE
+            warningText.visibility = View.GONE
+        } else {
+            updateStatus.visibility = View.GONE
+            warningText.visibility = View.VISIBLE
+        }
     }
 }
