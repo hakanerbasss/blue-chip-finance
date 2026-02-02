@@ -10,13 +10,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-        
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -25,6 +25,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:gravity="center"/>
+
             <TextView
                 android:id="@+id/info_icon"
                 android:layout_width="32dp"
@@ -32,9 +33,39 @@
                 android:text="ℹ️"
                 android:textSize="24sp"
                 android:gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/refresh_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:text="🔄"
+                android:textSize="24sp"
+                android:gravity="center"
                 android:background="?attr/selectableItemBackgroundBorderless"/>
         </LinearLayout>
-        
+
+        <TextView
+            android:id="@+id/update_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📅 Son güncelleme: 02.02.2026"
+            android:textSize="12sp"
+            android:textColor="#4CAF50"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/warning_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚠️ İnternete bağlanınca güncel veriler yüklenecek"
+            android:textSize="12sp"
+            android:textColor="#FF9800"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
