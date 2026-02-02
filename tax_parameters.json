@@ -6,7 +6,7 @@
   "unemployment_rate": 0.01,
   "stamp_tax_rate": 0.00759,
   "tax_brackets": [
-    {"limit": 190001, "rate": 0.16},
+    {"limit": 190000, "rate": 0.15},
     {"limit": 550000, "rate": 0.20},
     {"limit": 1900000, "rate": 0.27},
     {"limit": 6600000, "rate": 0.35},
