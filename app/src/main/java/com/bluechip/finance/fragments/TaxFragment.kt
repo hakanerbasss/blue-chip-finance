@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,6 @@ import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.util.*
 
 class TaxFragment : Fragment() {
@@ -31,8 +29,6 @@ class TaxFragment : Fragment() {
     private lateinit var updateStatus: TextView
     private lateinit var warningText: TextView
     private lateinit var resultCard: MaterialCardView
-    
-    // Result TextViews
     private lateinit var resultGross: TextView
     private lateinit var resultSgk: TextView
     private lateinit var resultUnemployment: TextView
@@ -50,7 +46,6 @@ class TaxFragment : Fragment() {
     
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     
-    // Tax parameters (with 2026 defaults)
     private var minWageGross = 33030.0
     private var sgkRate = 0.14
     private var unemploymentRate = 0.01
@@ -79,7 +74,6 @@ class TaxFragment : Fragment() {
         updateStatus = view.findViewById(R.id.update_status)
         warningText = view.findViewById(R.id.warning_text)
         resultCard = view.findViewById(R.id.result_card)
-        
         resultGross = view.findViewById(R.id.result_gross)
         resultSgk = view.findViewById(R.id.result_sgk)
         resultUnemployment = view.findViewById(R.id.result_unemployment)
@@ -108,9 +102,7 @@ class TaxFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, months)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerMonth.adapter = adapter
-        
-        val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
-        spinnerMonth.setSelection(currentMonth)
+        spinnerMonth.setSelection(Calendar.getInstance().get(Calendar.MONTH))
     }
     
     private fun loadParameters() {
@@ -128,7 +120,6 @@ class TaxFragment : Fragment() {
             warningText.visibility = View.VISIBLE
         }
         
-        // Try to fetch fresh data
         fetchParameters()
     }
     
@@ -147,9 +138,8 @@ class TaxFragment : Fragment() {
                 updateStatus.text = "📅 Son güncelleme: $lastUpdate"
                 updateStatus.setTextColor(requireContext().getColor(android.R.color.holo_green_dark))
                 warningText.visibility = View.GONE
-                
             } catch (e: Exception) {
-                // Silently fail, use defaults or cached
+                // Silently fail
             }
         }
     }
@@ -167,14 +157,11 @@ class TaxFragment : Fragment() {
             val bracketsArray = obj.getJSONArray("tax_brackets")
             for (i in 0 until bracketsArray.length()) {
                 val bracket = bracketsArray.getJSONObject(i)
-                brackets.add(TaxBracket(
-                    bracket.getDouble("limit"),
-                    bracket.getDouble("rate")
-                ))
+                brackets.add(TaxBracket(bracket.getDouble("limit"), bracket.getDouble("rate")))
             }
             taxBrackets = brackets
         } catch (e: Exception) {
-            Toast.makeText(context, "Parametre hatası, varsayılanlar kullanılıyor", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Parametre hatası", Toast.LENGTH_SHORT).show()
         }
     }
     
@@ -193,6 +180,15 @@ class TaxFragment : Fragment() {
     }
     
     private fun showInfoDialog() {
+        val bracketTable = buildString {
+            var previousLimit = 0.0
+            taxBrackets.forEach { bracket ->
+                val limitStr = if (bracket.limit >= 999999999) "+" else formatMoney(bracket.limit)
+                append("${formatMoney(previousLimit)} - $limitStr₺ → %${(bracket.rate * 100).toInt()}\n")
+                previousLimit = bracket.limit
+            }
+        }
+        
         val message = """
 📋 VERGİ DİLİMİ NEDİR?
 
@@ -201,16 +197,10 @@ belirleyen sistemdir. Türkiye'de "artan
 oranlı" vergi sistemi uygulanır.
 
 ━━━━━━━━━━━━━━━━━━━━━
-📊 2026 VERGİ DİLİMLERİ
+📊 $lastUpdate VERGİ DİLİMLERİ
 ━━━━━━━━━━━━━━━━━━━━━
 
-Kümülatif Matrah | Oran
-0 - 190.000₺ → %15
-190.000 - 550.000₺ → %20
-550.000 - 1.900.000₺ → %27
-1.900.000 - 6.600.000₺ → %35
-6.600.000+ ₺ → %40
-
+$bracketTable
 ━━━━━━━━━━━━━━━━━━━━━
 ❓ KÜMÜLATİF MATRAH NEDİR?
 ━━━━━━━━━━━━━━━━━━━━━
@@ -233,7 +223,15 @@ tabi kazançlarınızın toplamıdır.
 ✅ Tüm ücretliler
 
 ❌ Asgari ücretliler muaftır
-   (2026: 33.030₺ altı)
+   (Brüt: ${formatMoney(minWageGross)}₺ altı)
+
+━━━━━━━━━━━━━━━━━━━━━
+📊 GÜNCEL ORANLAR
+━━━━━━━━━━━━━━━━━━━━━
+
+SGK İşçi: %${(sgkRate * 100).toInt()}
+İşsizlik: %${(unemploymentRate * 100).toInt()}
+Damga V.: %${String.format("%.3f", stampTaxRate * 100)}
 
 ━━━━━━━━━━━━━━━━━━━━━
 💡 ÖNEMLİ BİLGİLER
@@ -277,19 +275,15 @@ tabi kazançlarınızın toplamıdır.
         
         val monthIndex = spinnerMonth.selectedItemPosition + 1
         
-        // Calculate
         val sgk = grossSalary * sgkRate
         val unemployment = grossSalary * unemploymentRate
         val baseMatrah = grossSalary - sgk - unemployment
         
-        // Exemption
         val exemptionAmount = minOf(baseMatrah, minWageGross - (minWageGross * sgkRate) - (minWageGross * unemploymentRate))
         val taxableMatrah = maxOf(0.0, baseMatrah - exemptionAmount)
         
-        // Cumulative
         val cumulativeMatrah = taxableMatrah * monthIndex
         
-        // Find bracket
         var bracketRate = 0.15
         var bracketInfo = "0 - 190.000₺ arası"
         for (i in taxBrackets.indices) {
@@ -301,14 +295,10 @@ tabi kazançlarınızın toplamıdır.
             }
         }
         
-        // Taxes
         val incomeTax = taxableMatrah * bracketRate
         val stampTax = grossSalary * stampTaxRate
-        
-        // Net
         val netSalary = grossSalary - sgk - unemployment - incomeTax - stampTax
         
-        // Display
         resultGross.text = "Brüt Maaş: ${formatMoney(grossSalary)}₺"
         resultSgk.text = "SGK İşçi (%${(sgkRate*100).toInt()}): -${formatMoney(sgk)}₺"
         resultUnemployment.text = "İşsizlik (%${(unemploymentRate*100).toInt()}): -${formatMoney(unemployment)}₺"
