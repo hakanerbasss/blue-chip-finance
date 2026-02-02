@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener {
-            Toast.makeText(context, "Vergi modülü yakında eklenecek", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "navigateToTax()", Toast.LENGTH_SHORT).show()
         }
         
         view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener {
@@ -100,6 +100,14 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToAnnualLeave() {
+    
+    private fun navigateToTax() {
+        val fragment = TaxFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
         val fragment = AnnualLeaveFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
