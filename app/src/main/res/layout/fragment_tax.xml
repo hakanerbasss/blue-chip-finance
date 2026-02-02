@@ -209,7 +209,7 @@
                     android:layout_marginBottom="16dp"/>
                 
                 <TextView
-                    android:id="@+id="result_cumulative"
+                    android:id="@+id/result_cumulative"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Kümülatif Matrah: 56.820₺"
