@@ -100,17 +100,6 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToAnnualLeave() {
-    
-    private fun navigateToTax() {
-        val fragment = TaxFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-        val fragment = AnnualLeaveFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }

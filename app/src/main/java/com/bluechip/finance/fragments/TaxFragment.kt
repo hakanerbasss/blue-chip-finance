@@ -43,7 +43,7 @@ class TaxFragment : Fragment() {
     private lateinit var resultMonthInfo: TextView
     private lateinit var resultBracket: TextView
     private lateinit var resultBracketInfo: TextView
-    private lateintin var resultIncomeTax: TextView
+    private lateinit var resultIncomeTax: TextView
     private lateinit var resultStampTax: TextView
     private lateinit var resultNet: TextView
     private lateinit var btnShare: Button
