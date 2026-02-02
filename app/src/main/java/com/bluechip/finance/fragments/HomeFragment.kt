@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         }
         
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener {
-            Toast.makeText(context, "navigateToTax()", Toast.LENGTH_SHORT).show()
+            navigateToTax()
         }
         
         view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener {
@@ -100,6 +100,9 @@ class HomeFragment : Fragment() {
     }
     
     private fun navigateToAnnualLeave() {
+        val fragment = AnnualLeaveFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }
@@ -298,4 +301,12 @@ class HomeFragment : Fragment() {
     }
     
     data class NewsItem(val title: String, val url: String, val time: String)
+    private fun navigateToTax() {
+        val fragment = TaxFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
 }
