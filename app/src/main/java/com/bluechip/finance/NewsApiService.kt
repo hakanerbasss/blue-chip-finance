@@ -1,3 +1,5 @@
+package com.bluechip.finance
+
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -10,7 +12,7 @@ data class Article(val title: String, val description: String?, val urlToImage: 
 interface NewsApiService {
     @GET("v2/top-headlines")
     suspend fun getNews(
-        @Query("country") country: String = "us",
+        @Query("country") country: String = "tr",
         @Query("apiKey") apiKey: String = "bc7b44a1f4844c018557d4945800d61c"
     ): NewsResponse
 
