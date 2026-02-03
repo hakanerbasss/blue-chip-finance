@@ -127,7 +127,8 @@ class TaxFragment : Fragment() {
         scope.launch {
             try {
                 val json = withContext(Dispatchers.IO) {
-                    URL("https://raw.githubusercontent.com/hakanerbasss/blue-chip-finance/main/tax_parameters.json").readText()
+                    val urlWithCacheBuster = "https://raw.githubusercontent.com/hakanerbasss/blue-chip-finance/main/tax_parameters.json?t=" + System.currentTimeMillis()
+    URL(urlWithCacheBuster).readText()
                 }
                 
                 parseParameters(json)
