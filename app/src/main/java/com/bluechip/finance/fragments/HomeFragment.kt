@@ -1,8 +1,6 @@
 package com.bluechip.finance.fragments
 
 import android.app.AlertDialog
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -45,7 +43,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Piyasa Kartı ID'leri (Senin orijinal XML yapına göre düzeltildi)
+        // XML ID'leri ile bağlantı
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -54,10 +52,10 @@ class HomeFragment : Fragment() {
         priceUpdateTime = view.findViewById(R.id.price_update_time)
         btnRefresh = view.findViewById(R.id.btn_refresh_prices)
         
-        // Haber ID'leri
         rvNews = view.findViewById(R.id.rvNews)
         tvNewsStatus = view.findViewById(R.id.tvNewsStatus)
         currencySwitch = view.findViewById(R.id.currency_switch)
+        val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
         rvNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
@@ -67,10 +65,8 @@ class HomeFragment : Fragment() {
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToFragment(TaxFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener { navigateToFragment(AnnualLeaveFragment()) }
 
-        btnRefresh.setOnClickListener {
-            loadPrices()
-            loadNewsFromAPI()
-        }
+        btnRefresh.setOnClickListener { loadPrices(); loadNewsFromAPI() }
+        btnMoreNews.setOnClickListener { loadNewsFromAPI() }
 
         currencySwitch.setOnCheckedChangeListener { _, isChecked ->
             isTL = !isChecked
@@ -105,7 +101,7 @@ class HomeFragment : Fragment() {
                             url = obj.optString("url", ""),
                             time = obj.optString("publishedAt", "").substringBefore("T"),
                             imageUrl = imgUrl,
-                            description = obj.optString("description", "")
+                            description = obj.optString("description", "Detay için tıklayın...")
                         ))
                     }
                     if (newsList.size >= 6) break 
@@ -113,9 +109,9 @@ class HomeFragment : Fragment() {
 
                 if (isAdded && newsList.isNotEmpty()) {
                     rvNews.adapter = NewsAdapter(newsList) { item -> showNewsDialog(item.title, item.url) }
-                    tvNewsStatus.text = "Güncellendi"
+                    tvNewsStatus.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
                 } else {
-                    tvNewsStatus.text = "Haber bulunamadı."
+                    tvNewsStatus.text = "Görsel içeren haber bulunamadı."
                 }
             } catch (e: Exception) {
                 tvNewsStatus.text = "Bağlantı hatası."
@@ -144,7 +140,7 @@ class HomeFragment : Fragment() {
                 updatePriceDisplay()
                 priceUpdateTime.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
             } catch (e: Exception) {
-                if (isAdded) Toast.makeText(context, "Fiyat hatası", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(context, "Fiyatlar güncellenemedi", Toast.LENGTH_SHORT).show()
             } finally { btnRefresh.isEnabled = true }
         }
     }
@@ -158,17 +154,12 @@ class HomeFragment : Fragment() {
 
     private fun updatePriceDisplay() {
         if (isTL) {
-            priceUsd.text = "${formatMoney(usdRate)}₺"
-            priceEur.text = "${formatMoney(eurRate)}₺"
-            priceGold.text = "${formatMoney(goldOunceUSD * usdRate)}₺"
-            priceBtc.text = "${formatMoney(btcUSD * usdRate)}₺"
-            priceEth.text = "${formatMoney(ethUSD * usdRate)}₺"
+            priceUsd.text = "Dolar: ${formatMoney(usdRate)}₺"; priceEur.text = "Euro: ${formatMoney(eurRate)}₺"
+            priceGold.text = "Altın: ${formatMoney(goldOunceUSD * usdRate)}₺"
+            priceBtc.text = "Bitcoin: ${formatMoney(btcUSD * usdRate)}₺"; priceEth.text = "Ethereum: ${formatMoney(ethUSD * usdRate)}₺"
         } else {
-            priceUsd.text = "1.00$"
-            priceEur.text = "${formatMoney(eurRate / usdRate)}$"
-            priceGold.text = "${formatMoney(goldOunceUSD)}$"
-            priceBtc.text = "${formatNumber(btcUSD)}$"
-            priceEth.text = "${formatNumber(ethUSD)}$"
+            priceUsd.text = "Dolar: 1,00$"; priceEur.text = "Euro: ${formatMoney(eurRate / usdRate)}$"
+            priceGold.text = "Altın: ${formatMoney(goldOunceUSD)}$"; priceBtc.text = "Bitcoin: ${formatNumber(btcUSD)}$"; priceEth.text = "Ethereum: ${formatNumber(ethUSD)}$"
         }
     }
 
@@ -204,8 +195,6 @@ class HomeFragment : Fragment() {
             val item = list[p]
             h.title.text = item.title
             h.desc.text = item.description
-            
-            // placeholder_news hatasını gidermek için standart Android drawable kullanıldı
             h.img.load(item.imageUrl) {
                 crossfade(true)
                 placeholder(android.R.drawable.progress_horizontal)
