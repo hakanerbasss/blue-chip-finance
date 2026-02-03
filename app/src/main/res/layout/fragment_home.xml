@@ -29,7 +29,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:cardElevation="4dp"
-            //app:cardBackgroundColor="#F8F9FA"
             app:cardCornerRadius="12dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="💰 Fazla Mesai" android:textSize="16sp" android:textStyle="bold" android:textColor="?android:textColorPrimary"/>
@@ -45,7 +44,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:cardElevation="4dp"
-          //  app:cardBackgroundColor="#F8F9FA"
             app:cardCornerRadius="12dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="🎁 Kıdem &amp; İhbar" android:textSize="16sp" android:textStyle="bold" android:textColor="?android:textColorPrimary"/>
@@ -61,7 +59,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:cardElevation="4dp"
-          //  app:cardBackgroundColor="#F8F9FA"
             app:cardCornerRadius="12dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="💳 Vergi Dilimi" android:textSize="16sp" android:textStyle="bold" android:textColor="?android:textColorPrimary"/>
@@ -77,7 +74,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:cardElevation="4dp"
-          //  app:cardBackgroundColor="#F8F9FA"
             app:cardCornerRadius="12dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="🌴 Yıllık İzin" android:textSize="16sp" android:textStyle="bold" android:textColor="?android:textColorPrimary"/>
@@ -115,7 +111,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:cardElevation="6dp"
-            //app:cardBackgroundColor="#F8F9FA"
             app:cardCornerRadius="12dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
@@ -168,7 +163,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:cardElevation="6dp"
-         //   app:cardBackgroundColor="#F8F9FA"
             app:cardCornerRadius="16dp">
             <LinearLayout
                 android:layout_width="match_parent"
