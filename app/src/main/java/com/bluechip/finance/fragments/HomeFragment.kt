@@ -20,6 +20,7 @@ import org.json.JSONObject
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
+import coil.load // Kütüphaneyi eklediğinden emin ol
 
 class HomeFragment : Fragment() {
     private lateinit var priceUsd: TextView
@@ -44,7 +45,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Fiyat Bileşenleri
+        // Görsel Bileşenleri Bağlama
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -52,31 +53,26 @@ class HomeFragment : Fragment() {
         priceEth = view.findViewById(R.id.price_eth)
         priceUpdateTime = view.findViewById(R.id.price_update_time)
         btnRefresh = view.findViewById(R.id.btn_refresh_prices)
-        
-        // Haber Bileşenleri
         rvNews = view.findViewById(R.id.rvNews)
         tvNewsStatus = view.findViewById(R.id.tvNewsStatus)
-        val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
-        
         currencySwitch = view.findViewById(R.id.currency_switch)
+        val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
-        // RecyclerView Ayarı (Yatay Kaydırma)
+        // RecyclerView Konfigürasyonu (Yatay Kaydırma)
         rvNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        // Tıklama Dinleyicileri
-        view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener { navigateToOvertime() }
-        view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener { navigateToSeverance() }
-        view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToTax() }
-        view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener { navigateToAnnualLeave() }
+        // Menü Navigasyonları
+        view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener { navigateToFragment(OvertimeFragment()) }
+        view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener { navigateToFragment(SeveranceFragment()) }
+        view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToFragment(TaxFragment()) }
+        view.findViewById<MaterialCardView>(R.id.card_severance).setOnClickListener { navigateToFragment(AnnualLeaveFragment()) }
 
         btnRefresh.setOnClickListener {
             loadPrices()
             loadNewsFromAPI()
         }
 
-        btnMoreNews.setOnClickListener {
-            loadNewsFromAPI()
-        }
+        btnMoreNews.setOnClickListener { loadNewsFromAPI() }
 
         currencySwitch.setOnCheckedChangeListener { _, isChecked ->
             isTL = !isChecked
@@ -97,49 +93,53 @@ class HomeFragment : Fragment() {
             try {
                 tvNewsStatus.text = "Haberler güncelleniyor..."
                 
-                val response = withContext(Dispatchers.IO) {
-                    URL(url).readText()
-                }
-
+                val response = withContext(Dispatchers.IO) { URL(url).readText() }
                 val jsonResponse = JSONObject(response)
                 val articlesArray = jsonResponse.getJSONArray("articles")
                 val newsList = mutableListOf<NewsItem>()
 
-                for (i in 0 until minOf(articlesArray.length(), 6)) {
+                for (i in 0 until minOf(articlesArray.length(), 8)) {
                     val obj = articlesArray.getJSONObject(i)
-                    newsList.add(NewsItem(
-                        title = obj.getString("title"),
-                        url = obj.getString("url"),
-                        time = obj.optString("publishedAt").substringBefore("T"),
-                        imageUrl = obj.optString("urlToImage", ""),
-                        description = obj.optString("description", "")
-                    ))
+                    val imgUrl = obj.optString("urlToImage", "")
+                    
+                    // Sadece görseli olan haberleri ekleyerek tasarımı koruyoruz
+                    if (imgUrl.isNotEmpty() && imgUrl != "null") {
+                        newsList.add(NewsItem(
+                            title = obj.optString("title", "Başlıksız"),
+                            url = obj.optString("url", ""),
+                            time = obj.optString("publishedAt", "").substringBefore("T"),
+                            imageUrl = imgUrl,
+                            description = obj.optString("description", "Detay için tıklayın...")
+                        ))
+                    }
                 }
 
-                if (isAdded) {
-                    rvNews.adapter = NewsAdapter(newsList) { item ->
-                        showNewsDialog(item.title, item.url)
-                    }
+                if (isAdded && newsList.isNotEmpty()) {
+                    rvNews.adapter = NewsAdapter(newsList) { item -> showNewsDialog(item.title, item.url) }
                     tvNewsStatus.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
+                } else {
+                    tvNewsStatus.text = "Haber bulunamadı."
                 }
 
             } catch (e: Exception) {
-                tvNewsStatus.text = "Haberler yüklenemedi."
+                tvNewsStatus.text = "Hata oluştu."
                 e.printStackTrace()
             }
         }
     }
 
-    // --- MEVCUT FİYAT FONKSİYONLARI (DEĞİŞMEDİ) ---
+    // --- PİYASA VERİLERİ ---
     private fun loadPrices() {
         scope.launch {
             try {
                 btnRefresh.isEnabled = false
+                // TCMB Verisi
                 val tcmbData = withContext(Dispatchers.IO) {
                     try { URL("https://www.tcmb.gov.tr/kurlar/today.xml").readText() } catch (e: Exception) { null }
                 }
                 if (tcmbData != null) parseTCMBData(tcmbData)
 
+                // Kripto Verisi
                 val cryptoData = withContext(Dispatchers.IO) {
                     try { URL("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether-gold&vs_currencies=usd").readText() } catch (e: Exception) { null }
                 }
@@ -188,31 +188,34 @@ class HomeFragment : Fragment() {
     private fun formatMoney(amount: Double) = String.format("%.2f", amount).replace('.', ',')
     private fun formatNumber(amount: Double) = String.format("%,.0f", amount).replace(',', '.')
 
-    // Navigasyonlar
-    private fun navigateToOvertime() { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, OvertimeFragment()).addToBackStack(null).commit() }
-    private fun navigateToSeverance() { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, SeveranceFragment()).addToBackStack(null).commit() }
-    private fun navigateToTax() { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, TaxFragment()).addToBackStack(null).commit() }
-    private fun navigateToAnnualLeave() { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, AnnualLeaveFragment()).addToBackStack(null).commit() }
+    private fun navigateToFragment(fragment: Fragment) {
+        parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+    }
 
     override fun onDestroy() { super.onDestroy(); scope.cancel() }
 
-    // Haber Modeli
+    // DATA MODELLERİ
     data class NewsItem(val title: String, val url: String, val time: String, val imageUrl: String, val description: String)
 
-    // Haber Adapter (İç Sınıf)
+    // RECYCLERVIEW ADAPTER
     inner class NewsAdapter(private val list: List<NewsItem>, val onClick: (NewsItem) -> Unit) : RecyclerView.Adapter<NewsAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val title = v.findViewById<TextView>(R.id.tvTitle)
-            val desc = v.findViewById<TextView>(R.id.tvDesc)
-            val img = v.findViewById<ImageView>(R.id.ivNews)
+            val title: TextView = v.findViewById(R.id.tvTitle)
+            val desc: TextView = v.findViewById(R.id.tvDesc)
+            val img: ImageView = v.findViewById(R.id.ivNews)
         }
         override fun onCreateViewHolder(p: ViewGroup, t: Int) = VH(LayoutInflater.from(p.context).inflate(R.layout.item_news_card, p, false))
         override fun onBindViewHolder(h: VH, p: Int) {
             val item = list[p]
             h.title.text = item.title
             h.desc.text = item.description
-            // Resim yükleme kütüphanesi (Coil/Glide) ekli değilse ImageView boş kalır. 
-            // Basitlik için şimdilik setOnClickListener ekliyoruz.
+            
+            // Coil ile resim yükleme ve köşe yumuşatma
+            h.img.load(item.imageUrl) {
+                crossfade(true)
+                placeholder(R.drawable.placeholder_news) // Eğer drawable yoksa burayı R.color.gray yapabilirsin
+                error(R.drawable.error_news)
+            }
             h.itemView.setOnClickListener { onClick(item) }
         }
         override fun getItemCount() = list.size
