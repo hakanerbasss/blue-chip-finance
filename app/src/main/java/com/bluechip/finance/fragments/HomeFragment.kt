@@ -20,7 +20,7 @@ import org.json.JSONObject
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
-import coil.load // Kütüphaneyi eklediğinden emin ol
+import coil.load
 
 class HomeFragment : Fragment() {
     private lateinit var priceUsd: TextView
@@ -45,7 +45,6 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Görsel Bileşenleri Bağlama
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -58,10 +57,8 @@ class HomeFragment : Fragment() {
         currencySwitch = view.findViewById(R.id.currency_switch)
         val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
-        // RecyclerView Konfigürasyonu (Yatay Kaydırma)
         rvNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        // Menü Navigasyonları
         view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener { navigateToFragment(OvertimeFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener { navigateToFragment(SeveranceFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToFragment(TaxFragment()) }
@@ -98,11 +95,11 @@ class HomeFragment : Fragment() {
                 val articlesArray = jsonResponse.getJSONArray("articles")
                 val newsList = mutableListOf<NewsItem>()
 
-                for (i in 0 until minOf(articlesArray.length(), 8)) {
+                // --- GÜNCELLENEN DÖNGÜ BAŞLANGICI ---
+                for (i in 0 until articlesArray.length()) {
                     val obj = articlesArray.getJSONObject(i)
                     val imgUrl = obj.optString("urlToImage", "")
-                    
-                    // Sadece görseli olan haberleri ekleyerek tasarımı koruyoruz
+
                     if (imgUrl.isNotEmpty() && imgUrl != "null") {
                         newsList.add(NewsItem(
                             title = obj.optString("title", "Başlıksız"),
@@ -112,34 +109,35 @@ class HomeFragment : Fragment() {
                             description = obj.optString("description", "Detay için tıklayın...")
                         ))
                     }
+                    
+                    // En fazla 6 adet resimli haber al ve dur
+                    if (newsList.size >= 6) break 
                 }
+                // --- GÜNCELLENEN DÖNGÜ BİTİŞİ ---
 
                 if (isAdded && newsList.isNotEmpty()) {
                     rvNews.adapter = NewsAdapter(newsList) { item -> showNewsDialog(item.title, item.url) }
                     tvNewsStatus.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
                 } else {
-                    tvNewsStatus.text = "Haber bulunamadı."
+                    tvNewsStatus.text = "Görsel içeren haber bulunamadı."
                 }
 
             } catch (e: Exception) {
-                tvNewsStatus.text = "Hata oluştu."
+                tvNewsStatus.text = "Haberler yüklenemedi."
                 e.printStackTrace()
             }
         }
     }
 
-    // --- PİYASA VERİLERİ ---
     private fun loadPrices() {
         scope.launch {
             try {
                 btnRefresh.isEnabled = false
-                // TCMB Verisi
                 val tcmbData = withContext(Dispatchers.IO) {
                     try { URL("https://www.tcmb.gov.tr/kurlar/today.xml").readText() } catch (e: Exception) { null }
                 }
                 if (tcmbData != null) parseTCMBData(tcmbData)
 
-                // Kripto Verisi
                 val cryptoData = withContext(Dispatchers.IO) {
                     try { URL("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether-gold&vs_currencies=usd").readText() } catch (e: Exception) { null }
                 }
@@ -194,10 +192,8 @@ class HomeFragment : Fragment() {
 
     override fun onDestroy() { super.onDestroy(); scope.cancel() }
 
-    // DATA MODELLERİ
     data class NewsItem(val title: String, val url: String, val time: String, val imageUrl: String, val description: String)
 
-    // RECYCLERVIEW ADAPTER
     inner class NewsAdapter(private val list: List<NewsItem>, val onClick: (NewsItem) -> Unit) : RecyclerView.Adapter<NewsAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
             val title: TextView = v.findViewById(R.id.tvTitle)
@@ -209,11 +205,9 @@ class HomeFragment : Fragment() {
             val item = list[p]
             h.title.text = item.title
             h.desc.text = item.description
-            
-            // Coil ile resim yükleme ve köşe yumuşatma
             h.img.load(item.imageUrl) {
                 crossfade(true)
-                placeholder(R.drawable.placeholder_news) // Eğer drawable yoksa burayı R.color.gray yapabilirsin
+                placeholder(R.drawable.placeholder_news)
                 error(R.drawable.error_news)
             }
             h.itemView.setOnClickListener { onClick(item) }
