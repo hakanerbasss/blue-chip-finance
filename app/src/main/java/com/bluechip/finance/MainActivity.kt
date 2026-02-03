@@ -14,19 +14,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge() // Android 15 tam ekran desteği
+        enableEdgeToEdge() 
         super.onCreate(savedInstanceState)
         
-        // Temadan kaçan barları gizle
         supportActionBar?.hide()
-
         setContentView(R.layout.activity_main)
 
         val rootView = findViewById<View>(android.R.id.content)
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // YUKARI boşluğunu 0 yaparak barın bıraktığı izi sildik
-            v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom)
+            
+            // DÜZELTME: Buradaki '0' yerine 'systemBars.top' yazıyoruz.
+            // Bu sayede içerik saat/pil çubuğunun altına itilir.
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            
             insets
         }
 
