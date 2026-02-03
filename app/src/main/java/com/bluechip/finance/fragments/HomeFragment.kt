@@ -93,7 +93,7 @@ class HomeFragment : Fragment() {
                 // Retrofit kullanarak haberleri çekiyoruz
                 val apiService = NewsApiService.create()
                 val response = withContext(Dispatchers.IO) { 
-                    apiService.getNews(country = "tr", apiKey = apiKey) 
+                    apiService.getNews(country = "us", apiKey = apiKey) 
                 }
 
                 if (isAdded && response.articles.isNotEmpty()) {
