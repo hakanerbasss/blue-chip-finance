@@ -45,6 +45,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
+        // Piyasa Kartı ID'leri (Senin orijinal XML yapına göre düzeltildi)
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -52,13 +53,15 @@ class HomeFragment : Fragment() {
         priceEth = view.findViewById(R.id.price_eth)
         priceUpdateTime = view.findViewById(R.id.price_update_time)
         btnRefresh = view.findViewById(R.id.btn_refresh_prices)
+        
+        // Haber ID'leri
         rvNews = view.findViewById(R.id.rvNews)
         tvNewsStatus = view.findViewById(R.id.tvNewsStatus)
         currencySwitch = view.findViewById(R.id.currency_switch)
-        val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
         rvNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
+        // Navigasyonlar
         view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener { navigateToFragment(OvertimeFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener { navigateToFragment(SeveranceFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToFragment(TaxFragment()) }
@@ -68,8 +71,6 @@ class HomeFragment : Fragment() {
             loadPrices()
             loadNewsFromAPI()
         }
-
-        btnMoreNews.setOnClickListener { loadNewsFromAPI() }
 
         currencySwitch.setOnCheckedChangeListener { _, isChecked ->
             isTL = !isChecked
@@ -89,13 +90,11 @@ class HomeFragment : Fragment() {
         scope.launch {
             try {
                 tvNewsStatus.text = "Haberler güncelleniyor..."
-                
                 val response = withContext(Dispatchers.IO) { URL(url).readText() }
                 val jsonResponse = JSONObject(response)
                 val articlesArray = jsonResponse.getJSONArray("articles")
                 val newsList = mutableListOf<NewsItem>()
 
-                // --- GÜNCELLENEN DÖNGÜ BAŞLANGICI ---
                 for (i in 0 until articlesArray.length()) {
                     val obj = articlesArray.getJSONObject(i)
                     val imgUrl = obj.optString("urlToImage", "")
@@ -106,25 +105,20 @@ class HomeFragment : Fragment() {
                             url = obj.optString("url", ""),
                             time = obj.optString("publishedAt", "").substringBefore("T"),
                             imageUrl = imgUrl,
-                            description = obj.optString("description", "Detay için tıklayın...")
+                            description = obj.optString("description", "")
                         ))
                     }
-                    
-                    // En fazla 6 adet resimli haber al ve dur
                     if (newsList.size >= 6) break 
                 }
-                // --- GÜNCELLENEN DÖNGÜ BİTİŞİ ---
 
                 if (isAdded && newsList.isNotEmpty()) {
                     rvNews.adapter = NewsAdapter(newsList) { item -> showNewsDialog(item.title, item.url) }
-                    tvNewsStatus.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
+                    tvNewsStatus.text = "Güncellendi"
                 } else {
-                    tvNewsStatus.text = "Görsel içeren haber bulunamadı."
+                    tvNewsStatus.text = "Haber bulunamadı."
                 }
-
             } catch (e: Exception) {
-                tvNewsStatus.text = "Haberler yüklenemedi."
-                e.printStackTrace()
+                tvNewsStatus.text = "Bağlantı hatası."
             }
         }
     }
@@ -150,7 +144,7 @@ class HomeFragment : Fragment() {
                 updatePriceDisplay()
                 priceUpdateTime.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
             } catch (e: Exception) {
-                if (isAdded) Toast.makeText(context, "Fiyatlar yüklenemedi", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(context, "Fiyat hatası", Toast.LENGTH_SHORT).show()
             } finally { btnRefresh.isEnabled = true }
         }
     }
@@ -164,12 +158,17 @@ class HomeFragment : Fragment() {
 
     private fun updatePriceDisplay() {
         if (isTL) {
-            priceUsd.text = "${formatMoney(usdRate)}₺"; priceEur.text = "${formatMoney(eurRate)}₺"
+            priceUsd.text = "${formatMoney(usdRate)}₺"
+            priceEur.text = "${formatMoney(eurRate)}₺"
             priceGold.text = "${formatMoney(goldOunceUSD * usdRate)}₺"
-            priceBtc.text = "${formatMoney(btcUSD * usdRate)}₺"; priceEth.text = "${formatMoney(ethUSD * usdRate)}₺"
+            priceBtc.text = "${formatMoney(btcUSD * usdRate)}₺"
+            priceEth.text = "${formatMoney(ethUSD * usdRate)}₺"
         } else {
-            priceUsd.text = "1.00$"; priceEur.text = "${formatMoney(eurRate / usdRate)}$"
-            priceGold.text = "${formatMoney(goldOunceUSD)}$"; priceBtc.text = "${formatNumber(btcUSD)}$"; priceEth.text = "${formatNumber(ethUSD)}$"
+            priceUsd.text = "1.00$"
+            priceEur.text = "${formatMoney(eurRate / usdRate)}$"
+            priceGold.text = "${formatMoney(goldOunceUSD)}$"
+            priceBtc.text = "${formatNumber(btcUSD)}$"
+            priceEth.text = "${formatNumber(ethUSD)}$"
         }
     }
 
@@ -205,10 +204,12 @@ class HomeFragment : Fragment() {
             val item = list[p]
             h.title.text = item.title
             h.desc.text = item.description
+            
+            // placeholder_news hatasını gidermek için standart Android drawable kullanıldı
             h.img.load(item.imageUrl) {
                 crossfade(true)
-                placeholder(R.drawable.placeholder_news)
-                error(R.drawable.error_news)
+                placeholder(android.R.drawable.progress_horizontal)
+                error(android.R.drawable.stat_notify_error)
             }
             h.itemView.setOnClickListener { onClick(item) }
         }
