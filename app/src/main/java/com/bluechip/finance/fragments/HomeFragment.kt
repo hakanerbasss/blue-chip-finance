@@ -59,7 +59,6 @@ class HomeFragment : Fragment() {
         currencySwitch = view.findViewById(R.id.currency_switch)
         val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
-        // RecyclerView Ayarı
         rvNews.layoutManager = LinearLayoutManager(context)
         rvNews.isNestedScrollingEnabled = false
 
@@ -89,7 +88,6 @@ class HomeFragment : Fragment() {
         scope.launch {
             try {
                 tvNewsStatus.text = "Haberler güncelleniyor..."
-                
                 val apiService = NewsApiService.create()
                 val response = withContext(Dispatchers.IO) { 
                     apiService.getNews(apiKey = apiKey) 
@@ -97,7 +95,7 @@ class HomeFragment : Fragment() {
 
                 val articles = response.articles
                 if (isAdded && articles != null && articles.isNotEmpty()) {
-                    // Sadece en güncel 3 haberi al
+                    // Sadece en güncel 3 haberi alıyoruz
                     val limitedArticles = articles.take(3)
 
                     rvNews.adapter = InternalNewsAdapter(limitedArticles) { article -> 
@@ -174,6 +172,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroy() { super.onDestroy(); scope.cancel() }
 
+    // --- ÖZELLEŞTİRİLMİŞ ADAPTER ---
     inner class InternalNewsAdapter(private val list: List<Article>, val onClick: (Article) -> Unit) : RecyclerView.Adapter<InternalNewsAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
             val title: TextView = v.findViewById(R.id.tvNewsTitle)
@@ -181,15 +180,24 @@ class HomeFragment : Fragment() {
             val img: ImageView = v.findViewById(R.id.ivNewsImage)
         }
         override fun onCreateViewHolder(p: ViewGroup, t: Int) = VH(LayoutInflater.from(p.context).inflate(R.layout.item_news, p, false))
+        
         override fun onBindViewHolder(h: VH, p: Int) {
             val item = list[p]
             h.title.text = item.title
             h.source.text = item.description ?: "Detaylar için tıklayın"
-            h.img.load(item.urlToImage) {
-                crossfade(true)
-                placeholder(android.R.drawable.progress_horizontal)
-                error(android.R.drawable.stat_notify_error)
+            
+            // FOTOĞRAF KONTROLÜ: Boş kareleri gizler
+            if (!item.urlToImage.isNullOrEmpty() && item.urlToImage != "null") {
+                h.img.visibility = View.VISIBLE
+                h.img.load(item.urlToImage) {
+                    crossfade(true)
+                    placeholder(android.R.drawable.progress_horizontal)
+                    error(android.R.drawable.stat_notify_error)
+                }
+            } else {
+                h.img.visibility = View.GONE
             }
+
             h.itemView.setOnClickListener { onClick(item) }
         }
         override fun getItemCount() = list.size
