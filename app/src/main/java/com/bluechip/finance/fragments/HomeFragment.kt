@@ -59,7 +59,7 @@ class HomeFragment : Fragment() {
         currencySwitch = view.findViewById(R.id.currency_switch)
         val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
-        // RecyclerView Ayarı (Dikey liste olarak ayarlandı)
+        // RecyclerView Ayarı
         rvNews.layoutManager = LinearLayoutManager(context)
         rvNews.isNestedScrollingEnabled = false
 
@@ -83,45 +83,38 @@ class HomeFragment : Fragment() {
         return view
     }
 
-    
-
-    // --- PİYASA FİYATLARI KODLARI (DEĞİŞMEDİ) ---
-    private fun loadPrices() {
+    private fun loadNewsFromAPI() {
+        val apiKey = "bc7b44a1f4844c018557d4945800d61c"
+        
         scope.launch {
-private fun loadNewsFromAPI() {
-    val apiKey = "bc7b44a1f4844c018557d4945800d61c"
-    
-    scope.launch {
-        try {
-            tvNewsStatus.text = "Haberler güncelleniyor..."
-            
-            val apiService = NewsApiService.create()
-            val response = withContext(Dispatchers.IO) { 
-                // Not: NewsApiService'de 'everything' yaptıysan burada parametre göndermene gerek yok
-                // Çünkü varsayılan değerleri (tr, ekonomi vb.) zaten orada tanımladık.
-                apiService.getNews(apiKey = apiKey) 
-            }
-
-            // Gelen haber listesini kontrol et ve ilk 3'ünü al
-            val articles = response.articles
-            if (isAdded && articles != null && articles.isNotEmpty()) {
+            try {
+                tvNewsStatus.text = "Haberler güncelleniyor..."
                 
-                // Sadece en güncel 3 haberi seçiyoruz
-                val limitedArticles = articles.take(3)
-
-                rvNews.adapter = InternalNewsAdapter(limitedArticles) { article -> 
-                    showNewsDialog(article.title ?: "Haber", article.url ?: "") 
+                val apiService = NewsApiService.create()
+                val response = withContext(Dispatchers.IO) { 
+                    apiService.getNews(apiKey = apiKey) 
                 }
-                
-                tvNewsStatus.text = "Son 3 haber listelendi (${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())})"
-            } else {
-                tvNewsStatus.text = "Güncel haber bulunamadı."
+
+                val articles = response.articles
+                if (isAdded && articles != null && articles.isNotEmpty()) {
+                    // Sadece en güncel 3 haberi al
+                    val limitedArticles = articles.take(3)
+
+                    rvNews.adapter = InternalNewsAdapter(limitedArticles) { article -> 
+                        showNewsDialog(article.title ?: "Haber", article.url ?: "") 
+                    }
+                    tvNewsStatus.text = "Son 3 haber listelendi (${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())})"
+                } else {
+                    tvNewsStatus.text = "Güncel haber bulunamadı."
+                }
+            } catch (e: Exception) {
+                tvNewsStatus.text = "Hata: ${e.localizedMessage}"
             }
-        } catch (e: Exception) {
-            tvNewsStatus.text = "Hata: ${e.localizedMessage}"
         }
     }
-}
+
+    private fun loadPrices() {
+        scope.launch {
             try {
                 btnRefresh.isEnabled = false
                 val tcmbData = withContext(Dispatchers.IO) {
@@ -181,7 +174,6 @@ private fun loadNewsFromAPI() {
 
     override fun onDestroy() { super.onDestroy(); scope.cancel() }
 
-    // --- YENİ ADAPTER (item_news.xml İÇİN) ---
     inner class InternalNewsAdapter(private val list: List<Article>, val onClick: (Article) -> Unit) : RecyclerView.Adapter<InternalNewsAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
             val title: TextView = v.findViewById(R.id.tvNewsTitle)
