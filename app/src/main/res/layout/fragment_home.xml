@@ -102,17 +102,43 @@
             app:cardElevation="4dp"
             app:cardCornerRadius="12dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                <TextView android:id="@+id/price_usd" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Dolar: --" android:textSize="15sp" android:layout_marginBottom="4dp"/>
-                <TextView android:id="@+id/price_eur" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Euro: --" android:textSize="15sp" android:layout_marginBottom="4dp"/>
-                <TextView android:id="@+id/price_gold" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Altın: --" android:textSize="15sp" android:layout_marginBottom="4dp"/>
-                <TextView android:id="@+id/price_btc" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bitcoin: --" android:textSize="15sp" android:layout_marginBottom="4dp"/>
-                <TextView android:id="@+id/price_eth" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ethereum: --" android:textSize="15sp" android:layout_marginBottom="8dp"/>
                 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginBottom="8dp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💵 Dolar" android:textSize="15sp" android:textColor="?android:textColorPrimary"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView android:id="@+id/price_usd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" android:textStyle="bold" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💶 Euro" android:textSize="15sp" android:textColor="?android:textColorPrimary"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView android:id="@+id/price_eur" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" android:textStyle="bold" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🟡 Altın (Ons)" android:textSize="15sp" android:textColor="?android:textColorPrimary"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView android:id="@+id/price_gold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" android:textStyle="bold" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₿ Bitcoin" android:textSize="15sp" android:textColor="?android:textColorPrimary"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView android:id="@+id/price_btc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" android:textStyle="bold" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💠 Ethereum" android:textSize="15sp" android:textColor="?android:textColorPrimary"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView android:id="@+id/price_eth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" android:textStyle="bold" android:textSize="15sp"/>
+                </LinearLayout>
                 
-                <TextView android:id="@+id/price_update_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Güncelleme bekleniyor..." android:textSize="11sp" android:textColor="?android:textColorSecondary"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginTop="4dp" android:layout_marginBottom="8dp"/>
                 
-                <Button android:id="@+id/btn_refresh_prices" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="YENİLE" android:layout_gravity="end" style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:id="@+id/price_update_time" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Güncelleme bekleniyor..." android:textSize="11sp" android:textColor="?android:textColorSecondary"/>
+                    <Button android:id="@+id/btn_refresh_prices" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="YENİLE" style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
