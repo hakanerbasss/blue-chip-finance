@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluechip.finance.R
+import com.bluechip.finance.Article
+import com.bluechip.finance.NewsApiService
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.*
 import org.json.JSONObject
@@ -43,6 +45,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
+        // UI Tanımlamaları
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -56,8 +59,11 @@ class HomeFragment : Fragment() {
         currencySwitch = view.findViewById(R.id.currency_switch)
         val btnMoreNews = view.findViewById<Button>(R.id.btn_more_news)
 
-        rvNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        // RecyclerView Ayarı (Dikey liste olarak ayarlandı)
+        rvNews.layoutManager = LinearLayoutManager(context)
+        rvNews.isNestedScrollingEnabled = false
 
+        // Kart Tıklamaları
         view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener { navigateToFragment(OvertimeFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener { navigateToFragment(SeveranceFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToFragment(TaxFragment()) }
@@ -79,44 +85,33 @@ class HomeFragment : Fragment() {
 
     private fun loadNewsFromAPI() {
         val apiKey = "bc7b44a1f4844c018557d4945800d61c"
-        val url = "https://newsapi.org/v2/top-headlines?country=tr&category=business&apiKey=$apiKey"
-
+        
         scope.launch {
             try {
                 tvNewsStatus.text = "Haberler güncelleniyor..."
-                val response = withContext(Dispatchers.IO) { URL(url).readText() }
-                val jsonResponse = JSONObject(response)
-                val articlesArray = jsonResponse.getJSONArray("articles")
-                val newsList = mutableListOf<NewsItem>()
-
-                for (i in 0 until articlesArray.length()) {
-                    val obj = articlesArray.getJSONObject(i)
-                    val imgUrl = obj.optString("urlToImage", "")
-
-                    if (imgUrl.isNotEmpty() && imgUrl != "null") {
-                        newsList.add(NewsItem(
-                            title = obj.optString("title", "Başlıksız"),
-                            url = obj.optString("url", ""),
-                            time = obj.optString("publishedAt", "").substringBefore("T"),
-                            imageUrl = imgUrl,
-                            description = obj.optString("description", "Detay için tıklayın...")
-                        ))
-                    }
-                    if (newsList.size >= 6) break 
+                
+                // Retrofit kullanarak haberleri çekiyoruz
+                val apiService = NewsApiService.create()
+                val response = withContext(Dispatchers.IO) { 
+                    apiService.getNews(country = "tr", apiKey = apiKey) 
                 }
 
-                if (isAdded && newsList.isNotEmpty()) {
-                    rvNews.adapter = NewsAdapter(newsList) { item -> showNewsDialog(item.title, item.url) }
+                if (isAdded && response.articles.isNotEmpty()) {
+                    // Kendi oluşturduğumuz Adapter ve click listener
+                    rvNews.adapter = InternalNewsAdapter(response.articles) { article -> 
+                        showNewsDialog(article.title, article.url) 
+                    }
                     tvNewsStatus.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
                 } else {
                     tvNewsStatus.text = "Haber bulunamadı."
                 }
             } catch (e: Exception) {
-                tvNewsStatus.text = "Bağlantı hatası."
+                tvNewsStatus.text = "Bağlantı hatası: ${e.message}"
             }
         }
     }
 
+    // --- PİYASA FİYATLARI KODLARI (DEĞİŞMEDİ) ---
     private fun loadPrices() {
         scope.launch {
             try {
@@ -152,8 +147,6 @@ class HomeFragment : Fragment() {
 
     private fun updatePriceDisplay() {
         val symbol = if (isTL) "₺" else "$"
-        
-        // Sadece değerleri basıyoruz, başlıklar ve ikonlar XML'de sabitlendi.
         priceUsd.text = "${formatMoney(if (isTL) usdRate else 1.0)}$symbol"
         priceEur.text = "${formatMoney(if (isTL) eurRate else eurRate / usdRate)}$symbol"
         priceGold.text = "${formatMoney(if (isTL) goldOunceUSD * usdRate else goldOunceUSD)}$symbol"
@@ -180,20 +173,19 @@ class HomeFragment : Fragment() {
 
     override fun onDestroy() { super.onDestroy(); scope.cancel() }
 
-    data class NewsItem(val title: String, val url: String, val time: String, val imageUrl: String, val description: String)
-
-    inner class NewsAdapter(private val list: List<NewsItem>, val onClick: (NewsItem) -> Unit) : RecyclerView.Adapter<NewsAdapter.VH>() {
+    // --- YENİ ADAPTER (item_news.xml İÇİN) ---
+    inner class InternalNewsAdapter(private val list: List<Article>, val onClick: (Article) -> Unit) : RecyclerView.Adapter<InternalNewsAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val title: TextView = v.findViewById(R.id.tvTitle)
-            val desc: TextView = v.findViewById(R.id.tvDesc)
-            val img: ImageView = v.findViewById(R.id.ivNews)
+            val title: TextView = v.findViewById(R.id.tvNewsTitle)
+            val source: TextView = v.findViewById(R.id.tvNewsSource)
+            val img: ImageView = v.findViewById(R.id.ivNewsImage)
         }
-        override fun onCreateViewHolder(p: ViewGroup, t: Int) = VH(LayoutInflater.from(p.context).inflate(R.layout.item_news_card, p, false))
+        override fun onCreateViewHolder(p: ViewGroup, t: Int) = VH(LayoutInflater.from(p.context).inflate(R.layout.item_news, p, false))
         override fun onBindViewHolder(h: VH, p: Int) {
             val item = list[p]
             h.title.text = item.title
-            h.desc.text = item.description
-            h.img.load(item.imageUrl) {
+            h.source.text = item.description ?: "Detaylar için tıklayın"
+            h.img.load(item.urlToImage) {
                 crossfade(true)
                 placeholder(android.R.drawable.progress_horizontal)
                 error(android.R.drawable.stat_notify_error)
