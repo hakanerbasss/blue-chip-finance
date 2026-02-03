@@ -20,8 +20,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // 1. Android 15 uçtan uca ekran desteğini aktif et
         enableEdgeToEdge()
-        
+
         super.onCreate(savedInstanceState)
+        
+        // --- BURASI KRİTİK: Mavi barı (AppBar) kodla zorla gizliyoruz ---
+        supportActionBar?.hide()
+
         setContentView(R.layout.activity_main)
 
         // 2. İçeriğin saat/pil simgelerinin altında kalmaması için padding ekle
