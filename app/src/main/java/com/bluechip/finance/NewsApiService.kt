@@ -11,7 +11,7 @@ interface NewsApiService {
     @GET("v2/top-headlines")
     suspend fun getNews(
         @Query("country") country: String = "us",
-        @Query("apiKey") apiKey: String = "SENIN_NEWS_API_ANAHTARIN_BURAYA"
+        @Query("apiKey") apiKey: String = "bc7b44a1f4844c018557d4945800d61c"
     ): NewsResponse
 
     companion object {
