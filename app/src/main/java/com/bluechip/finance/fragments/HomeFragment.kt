@@ -43,7 +43,6 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // XML ID'leri ile bağlantı
         priceUsd = view.findViewById(R.id.price_usd)
         priceEur = view.findViewById(R.id.price_eur)
         priceGold = view.findViewById(R.id.price_gold)
@@ -59,7 +58,6 @@ class HomeFragment : Fragment() {
 
         rvNews.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        // Navigasyonlar
         view.findViewById<MaterialCardView>(R.id.card_overtime).setOnClickListener { navigateToFragment(OvertimeFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_agi).setOnClickListener { navigateToFragment(SeveranceFragment()) }
         view.findViewById<MaterialCardView>(R.id.card_tax).setOnClickListener { navigateToFragment(TaxFragment()) }
@@ -111,7 +109,7 @@ class HomeFragment : Fragment() {
                     rvNews.adapter = NewsAdapter(newsList) { item -> showNewsDialog(item.title, item.url) }
                     tvNewsStatus.text = "Son güncelleme: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
                 } else {
-                    tvNewsStatus.text = "Görsel içeren haber bulunamadı."
+                    tvNewsStatus.text = "Haber bulunamadı."
                 }
             } catch (e: Exception) {
                 tvNewsStatus.text = "Bağlantı hatası."
@@ -153,14 +151,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun updatePriceDisplay() {
-        if (isTL) {
-            priceUsd.text = "Dolar: ${formatMoney(usdRate)}₺"; priceEur.text = "Euro: ${formatMoney(eurRate)}₺"
-            priceGold.text = "Altın: ${formatMoney(goldOunceUSD * usdRate)}₺"
-            priceBtc.text = "Bitcoin: ${formatMoney(btcUSD * usdRate)}₺"; priceEth.text = "Ethereum: ${formatMoney(ethUSD * usdRate)}₺"
-        } else {
-            priceUsd.text = "Dolar: 1,00$"; priceEur.text = "Euro: ${formatMoney(eurRate / usdRate)}$"
-            priceGold.text = "Altın: ${formatMoney(goldOunceUSD)}$"; priceBtc.text = "Bitcoin: ${formatNumber(btcUSD)}$"; priceEth.text = "Ethereum: ${formatNumber(ethUSD)}$"
-        }
+        val symbol = if (isTL) "₺" else "$"
+        
+        // Sadece değerleri basıyoruz, başlıklar ve ikonlar XML'de sabitlendi.
+        priceUsd.text = "${formatMoney(if (isTL) usdRate else 1.0)}$symbol"
+        priceEur.text = "${formatMoney(if (isTL) eurRate else eurRate / usdRate)}$symbol"
+        priceGold.text = "${formatMoney(if (isTL) goldOunceUSD * usdRate else goldOunceUSD)}$symbol"
+        priceBtc.text = "${if (isTL) formatNumber(btcUSD * usdRate) else formatNumber(btcUSD)}$symbol"
+        priceEth.text = "${if (isTL) formatNumber(ethUSD * usdRate) else formatNumber(ethUSD)}$symbol"
     }
 
     private fun showNewsDialog(title: String, url: String) {
