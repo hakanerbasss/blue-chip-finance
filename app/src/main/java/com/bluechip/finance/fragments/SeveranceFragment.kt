@@ -392,7 +392,7 @@ class SeveranceFragment : Fragment() {
     private fun fetchParameters() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("https://raw.githubusercontent.com/hakanerbasss/blue-chip-finance/main/tax_parameters.json?t=" + System.currentTimeMillis()))
+                val url = URL("https://raw.githubusercontent.com/hakanerbasss/blue-chip-finance/main/tax_parameters.json?t=" + System.currentTimeMillis())
                 val json = url.readText()
                 val jsonObject = JSONObject(json)
 
