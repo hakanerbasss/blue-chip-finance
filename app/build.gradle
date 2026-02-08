@@ -3,6 +3,18 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+// --- TERMUX FIX BAŞLANGICI ---
+// Bu blok, sadece Termux içindeyken çalışır.
+// GitHub Actions sunucusunda dosya olmadığı için orayı pas geçer ve hata vermez.
+def termuxAapt2Path = '/data/data/com.termux/files/usr/bin/aapt2'
+if (file(termuxAapt2Path).exists()) {
+    println "Termux ortamı algılandı, yerel aapt2 kullanılıyor."
+    project.ext.android.aapt2FromMavenOverride = termuxAapt2Path
+} else {
+    println "GitHub/CI ortamı algılandı, standart aapt2 kullanılıyor."
+}
+// --- TERMUX FIX SONU ---
+
 android {
     namespace 'com.bluechip.finance'
     compileSdk 34
